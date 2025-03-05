@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './GoalCard.css';
 
 function GoalCard({ 
@@ -11,6 +12,8 @@ function GoalCard({
   inflation, 
   currentValue 
 }) {
+  const navigate = useNavigate();
+
   const getProgressColor = (percentage) => {
     if (percentage >= 75) return '#4caf50';
     if (percentage >= 40) return '#ff9800';
@@ -18,7 +21,11 @@ function GoalCard({
   };
 
   return (
-    <div className="goal-card">
+    <div 
+      className="goal-card"
+      onClick={() => navigate(`/edit-goal/${title.replace(/\s+/g, '-').toLowerCase()}`)}
+      style={{ cursor: 'pointer' }}
+    >
       <div className="goal-icon">{icon}</div>
       <div className="goal-details">
         <div className="goal-header">
