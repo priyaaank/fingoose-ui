@@ -6,6 +6,8 @@ function EditAsset() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [assetData, setAssetData] = useState(null);
+  const [availableGoals, setAvailableGoals] = useState([]);
+  const [selectedGoals, setSelectedGoals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const icons = ['📈', '📊', '🏢', '🏦', '💎', '💰', '🏭', '💳', '🏗️', '🚗'];
@@ -23,11 +25,9 @@ function EditAsset() {
   ];
 
   useEffect(() => {
-    // In a real app, fetch the asset data based on id
-    // For now, we'll simulate with mock data
-    const fetchAsset = async () => {
+    // In a real app, fetch the asset data and available goals
+    const fetchData = async () => {
       try {
-        // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500));
         setAssetData({
           icon: '📈',
@@ -38,14 +38,25 @@ function EditAsset() {
           maturityDate: '',
           comments: ''
         });
+        // Fetch available goals
+        setAvailableGoals([
+          { id: 1, title: 'Home Down Payment', target: 250000 },
+          { id: 2, title: 'Emergency Fund', target: 50000 },
+          { id: 3, title: 'Retirement', target: 1000000 }
+        ]);
+        // Fetch existing goal mappings for this asset
+        setSelectedGoals([
+          { goalId: 1, allocation: 60, title: 'Home Down Payment' },
+          { goalId: 2, allocation: 40, title: 'Emergency Fund' }
+        ]);
       } catch (error) {
-        console.error('Error fetching asset:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAsset();
+    fetchData();
   }, [id]);
 
   const handleChange = (e) => {
@@ -69,6 +80,36 @@ function EditAsset() {
       console.log('Deleting asset:', id);
       navigate('/');
     }
+  };
+
+  const handleGoalAdd = () => {
+    const select = document.getElementById('goalSelect');
+    const goalId = parseInt(select.value);
+    const goal = availableGoals.find(g => g.id === goalId);
+    
+    if (goal && !selectedGoals.some(g => g.goalId === goalId)) {
+      setSelectedGoals([...selectedGoals, {
+        goalId,
+        title: goal.title,
+        allocation: 0
+      }]);
+    }
+  };
+  
+  const handleGoalRemove = (goalId) => {
+    setSelectedGoals(selectedGoals.filter(g => g.goalId !== goalId));
+  };
+  
+  const handleAllocationChange = (goalId, allocation) => {
+    setSelectedGoals(selectedGoals.map(goal => 
+      goal.goalId === goalId 
+        ? { ...goal, allocation: Math.min(100, Math.max(0, parseInt(allocation) || 0)) }
+        : goal
+    ));
+  };
+  
+  const getTotalAllocation = () => {
+    return selectedGoals.reduce((sum, goal) => sum + goal.allocation, 0);
   };
 
   if (isLoading || !assetData) {
@@ -194,6 +235,69 @@ function EditAsset() {
             placeholder="Add any additional notes about this asset..."
             rows="3"
           />
+        </div>
+
+        <div className="form-section">
+          <label>Goal Allocations</label>
+          <div className="goal-allocation-container">
+            <div className="goal-selector">
+              <select 
+                id="goalSelect"
+                className="goal-select"
+              >
+                <option value="">Select a goal to add...</option>
+                {availableGoals
+                  .filter(goal => !selectedGoals.some(sg => sg.goalId === goal.id))
+                  .map(goal => (
+                    <option key={goal.id} value={goal.id}>
+                      {goal.title}
+                    </option>
+                  ))
+                }
+              </select>
+              <button 
+                type="button" 
+                className="btn-add-goal"
+                onClick={handleGoalAdd}
+              >
+                Add Goal
+              </button>
+            </div>
+            
+            <div className="selected-goals">
+              {selectedGoals.map(goal => (
+                <div key={goal.goalId} className="goal-allocation-row">
+                  <span className="goal-title">{goal.title}</span>
+                  <div className="goal-allocation-controls">
+                    <input
+                      type="number"
+                      value={goal.allocation}
+                      onChange={(e) => handleAllocationChange(goal.goalId, e.target.value)}
+                      min="0"
+                      max="100"
+                      className="allocation-input"
+                    />
+                    <span className="percentage">%</span>
+                    <button
+                      type="button"
+                      className="btn-remove-goal"
+                      onClick={() => handleGoalRemove(goal.goalId)}
+                      title="Remove goal"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="allocation-summary">
+              <span className="total-label">Total Allocation:</span>
+              <span className={`total-value ${getTotalAllocation() > 100 ? 'error' : ''}`}>
+                {getTotalAllocation()}%
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="form-actions">
