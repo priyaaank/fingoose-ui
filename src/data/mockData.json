@@ -5,28 +5,40 @@
       "target": 250000,
       "title": "Home Down Payment",
       "projectedDate": "June 2025",
-      "progress": 68
+      "progress": 68,
+      "targetYear": "2025",
+      "inflation": 3.5,
+      "currentValue": 170000
     },
     {
       "icon": "🚨",
       "target": 50000,
       "title": "Emergency Fund",
       "projectedDate": "December 2023",
-      "progress": 85
+      "progress": 85,
+      "targetYear": "2023",
+      "inflation": 3.2,
+      "currentValue": 42500
     },
     {
       "icon": "🎓",
       "target": 120000,
       "title": "College Fund",
       "projectedDate": "August 2030",
-      "progress": 32
+      "progress": 32,
+      "targetYear": "2030",
+      "inflation": 4.0,
+      "currentValue": 38400
     },
     {
       "icon": "👴",
       "target": 500000,
       "title": "Retirement",
       "projectedDate": "January 2045",
-      "progress": 15
+      "progress": 15,
+      "targetYear": "2045",
+      "inflation": 3.8,
+      "currentValue": 75000
     }
   ],
   "investments": [

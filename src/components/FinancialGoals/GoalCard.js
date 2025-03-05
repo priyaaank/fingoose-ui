@@ -1,18 +1,64 @@
 import React from 'react';
+import './GoalCard.css';
 
-function GoalCard({ icon, target, title, projectedDate, progress }) {
+function GoalCard({ 
+  icon, 
+  target, 
+  title, 
+  projectedDate, 
+  progress, 
+  targetYear, 
+  inflation, 
+  currentValue 
+}) {
+  const getProgressColor = (percentage) => {
+    if (percentage >= 75) return '#4caf50';
+    if (percentage >= 40) return '#ff9800';
+    return '#ff5722';
+  };
+
   return (
     <div className="goal-card">
       <div className="goal-icon">{icon}</div>
       <div className="goal-details">
-        <h3>Target: ${target.toLocaleString()}</h3>
-        <h2>{title}</h2>
-        <p>Projected completion: {projectedDate}</p>
-        <p>{progress}% complete</p>
-      </div>
-      <div className="goal-actions">
-        <button className="btn-add">Add Funds</button>
-        <button className="btn-details">Details</button>
+        <div className="goal-header">
+          <h2>{title}</h2>
+          <div className="goal-target">
+            <h3>Target: ${target.toLocaleString()}</h3>
+            <span className="target-year">by {targetYear}</span>
+          </div>
+        </div>
+        
+        <div className="goal-metrics">
+          <div className="metric">
+            <label>Today's Value</label>
+            <span className="value">${currentValue.toLocaleString()}</span>
+          </div>
+          <div className="metric">
+            <label>Assumed Inflation</label>
+            <span className="value">{inflation}% per year</span>
+          </div>
+          <div className="metric">
+            <label>Target Date</label>
+            <span className="value">{projectedDate}</span>
+          </div>
+        </div>
+
+        <div className="progress-section">
+          <div className="progress-container">
+            <div 
+              className="progress-bar" 
+              style={{ 
+                width: `${progress}%`,
+                backgroundColor: getProgressColor(progress)
+              }}
+            />
+          </div>
+          <div className="progress-details">
+            <span className="progress-text">{progress}% complete</span>
+            <span className="saved-amount">Saved: ${(target * (progress/100)).toLocaleString()}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
