@@ -92,6 +92,7 @@
     {
       "icon": "🏠",
       "type": "Mortgage",
+      "name": "Primary Residence Loan",
       "outstanding": 320000,
       "emi": 1850,
       "interestRate": 3.5,
@@ -100,6 +101,7 @@
     {
       "icon": "🚗",
       "type": "Car Loan",
+      "name": "Toyota Camry 2023",
       "outstanding": 18500,
       "emi": 450,
       "interestRate": 4.2,
@@ -108,6 +110,7 @@
     {
       "icon": "🎓",
       "type": "Student Loan",
+      "name": "Graduate School Loan",
       "outstanding": 42000,
       "emi": 525,
       "interestRate": 5.0,

@@ -4,22 +4,28 @@ function LiabilitiesTable({ liabilities }) {
   return (
     <div className="liabilities-table">
       <div className="table-header">
-        <div>Loan Type</div>
+        <div>Type</div>
+        <div>Name</div>
         <div>Outstanding</div>
         <div>EMI</div>
         <div>Interest Rate</div>
-        <div>Remaining Tenure</div>
+        <div>Tenure</div>
+        <div>Actions</div>
       </div>
       {liabilities.map((liability, index) => (
         <div key={index} className="table-row">
-          <div className="loan-type">
-            <span className="loan-icon">{liability.icon}</span>
+          <div className="liability-type">
+            <span className="liability-icon">{liability.icon}</span>
             {liability.type}
           </div>
+          <div>{liability.name}</div>
           <div>${liability.outstanding.toLocaleString()}</div>
-          <div>${liability.emi}/mo</div>
+          <div>${liability.emi.toLocaleString()}</div>
           <div>{liability.interestRate}%</div>
           <div>{liability.tenure}</div>
+          <div>
+            <button className="details-btn">Show Details</button>
+          </div>
         </div>
       ))}
     </div>

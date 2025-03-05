@@ -105,6 +105,11 @@
   grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr 1fr;
 }
 
+.liabilities-table .table-header,
+.liabilities-table .table-row {
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr 1fr;
+}
+
 .details-btn {
   padding: 0.25rem 0.75rem;
   background: transparent;

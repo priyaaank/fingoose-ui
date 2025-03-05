@@ -50,7 +50,7 @@ function Dashboard() {
         <h1>Assets</h1>
         <InvestmentTable investments={data.investments} />
 
-        <h1>Liabilities Overview</h1>
+        <h1>Liabilities</h1>
         <LiabilitiesTable liabilities={data.liabilities} />
 
         <h1>Financial Summary</h1>
