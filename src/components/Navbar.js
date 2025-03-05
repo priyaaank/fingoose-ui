@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   
   return (
     <nav className={`main-nav ${isCollapsed ? 'collapsed' : ''}`}>
@@ -47,7 +48,14 @@ function Navbar() {
         </Link>
       </div>
       <div className="nav-right">
-        {!isCollapsed && <button className="new-goal-btn">New Goal</button>}
+        {!isCollapsed && (
+          <button 
+            className="new-goal-btn"
+            onClick={() => navigate('/new-goal')}
+          >
+            New Goal
+          </button>
+        )}
         <div className="user-profile" title={isCollapsed ? "John Doe" : ""}>
           <img src="/profile-placeholder.png" alt="User Profile" />
           {!isCollapsed && <span>John Doe</span>}
