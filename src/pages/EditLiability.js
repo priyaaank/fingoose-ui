@@ -1,21 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './NewLiability.css';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import './EditLiability.css';
 
-function NewLiability() {
+function EditLiability() {
   const navigate = useNavigate();
-  const [liabilityData, setLiabilityData] = useState({
-    icon: '🏠',
-    type: '',
-    name: '',
-    borrowedPrincipal: '',
-    outstanding: '',
-    emi: '',
-    interestRate: '',
-    startDate: '',
-    tenure: '',
-    comments: ''
-  });
+  const { id } = useParams();
+  const [liabilityData, setLiabilityData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const icons = ['🏠', '🚗', '🎓', '💳', '🏦', '🏥', '💼', '📱'];
   const liabilityTypes = [
@@ -29,6 +20,34 @@ function NewLiability() {
     'Others'
   ];
 
+  useEffect(() => {
+    // In a real app, fetch the liability data based on id
+    const fetchLiability = async () => {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setLiabilityData({
+          icon: '🏠',
+          type: 'Mortgage',
+          name: 'Home Loan',
+          borrowedPrincipal: 300000,
+          outstanding: 250000,
+          emi: 1200,
+          interestRate: 3.5,
+          startDate: '2023-01-01',
+          tenure: '30 years',
+          comments: ''
+        });
+      } catch (error) {
+        console.error('Error fetching liability:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLiability();
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLiabilityData(prev => ({
@@ -40,14 +59,33 @@ function NewLiability() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Here you would typically save the data
-    console.log('New liability:', liabilityData);
+    console.log('Updated liability:', liabilityData);
     navigate('/');
   };
 
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this liability?')) {
+      // Here you would typically delete the liability
+      console.log('Deleting liability:', id);
+      navigate('/');
+    }
+  };
+
+  if (isLoading || !liabilityData) {
+    return <div className="loading">Loading...</div>;
+  }
+
   return (
-    <div className="new-liability-page">
+    <div className="edit-liability-page">
       <div className="page-header">
-        <h1>Add New Liability</h1>
+        <h1>Edit Liability</h1>
+        <button 
+          className="delete-button"
+          onClick={handleDelete}
+          title="Delete liability"
+        >
+          Delete
+        </button>
       </div>
       
       <form onSubmit={handleSubmit} className="liability-form">
@@ -142,7 +180,9 @@ function NewLiability() {
               placeholder="0"
             />
           </div>
+        </div>
 
+        <div className="form-row">
           <div className="form-section">
             <label htmlFor="interestRate">Interest Rate (%)</label>
             <input
@@ -157,9 +197,7 @@ function NewLiability() {
               placeholder="0.0"
             />
           </div>
-        </div>
 
-        <div className="form-row">
           <div className="form-section">
             <label htmlFor="tenure">Tenure</label>
             <input
@@ -172,20 +210,17 @@ function NewLiability() {
               placeholder="e.g., 30 years"
             />
           </div>
+        </div>
 
-          <div className="form-section">
-            <label htmlFor="startDate">
-              Start Date
-              <span className="optional-label">(Optional)</span>
-            </label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              value={liabilityData.startDate}
-              onChange={handleChange}
-            />
-          </div>
+        <div className="form-section">
+          <label htmlFor="startDate">Start Date</label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={liabilityData.startDate}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-section">
@@ -208,7 +243,7 @@ function NewLiability() {
             Cancel
           </button>
           <button type="submit" className="btn-save">
-            Add Liability
+            Save Changes
           </button>
         </div>
       </form>
@@ -216,4 +251,4 @@ function NewLiability() {
   );
 }
 
-export default NewLiability; 
+export default EditLiability; 

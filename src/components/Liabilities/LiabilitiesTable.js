@@ -1,15 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function LiabilitiesTable({ liabilities }) {
+  const navigate = useNavigate();
+
   return (
     <div className="liabilities-table">
       <div className="table-header">
         <div>Type</div>
         <div>Name</div>
+        <div>Borrowed Principal</div>
         <div>Outstanding</div>
-        <div>EMI</div>
+        <div>Monthly Payment</div>
         <div>Interest Rate</div>
-        <div>Tenure</div>
         <div>Actions</div>
       </div>
       {liabilities.map((liability, index) => (
@@ -19,12 +22,17 @@ function LiabilitiesTable({ liabilities }) {
             {liability.type}
           </div>
           <div>{liability.name}</div>
+          <div>${(liability.borrowedPrincipal || 0).toLocaleString()}</div>
           <div>${liability.outstanding.toLocaleString()}</div>
           <div>${liability.emi.toLocaleString()}</div>
           <div>{liability.interestRate}%</div>
-          <div>{liability.tenure}</div>
           <div>
-            <button className="details-btn">Show Details</button>
+            <button 
+              className="details-btn"
+              onClick={() => navigate(`/edit-liability/${liability.id}`)}
+            >
+              Details
+            </button>
           </div>
         </div>
       ))}

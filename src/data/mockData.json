@@ -90,22 +90,26 @@
   ],
   "liabilities": [
     {
+      "id": 1,
       "icon": "🏠",
       "type": "Mortgage",
-      "name": "Primary Residence Loan",
-      "outstanding": 320000,
-      "emi": 1850,
+      "name": "Home Loan",
+      "borrowedPrincipal": 300000,
+      "outstanding": 250000,
+      "emi": 1200,
       "interestRate": 3.5,
-      "tenure": "25 years"
+      "tenure": "30 years"
     },
     {
+      "id": 2,
       "icon": "🚗",
       "type": "Car Loan",
-      "name": "Toyota Camry 2023",
-      "outstanding": 18500,
-      "emi": 450,
-      "interestRate": 4.2,
-      "tenure": "3 years"
+      "name": "Vehicle Loan",
+      "borrowedPrincipal": 45000,
+      "outstanding": 35000,
+      "emi": 500,
+      "interestRate": 4.5,
+      "tenure": "5 years"
     },
     {
       "icon": "🎓",
