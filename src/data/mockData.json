@@ -1,0 +1,130 @@
+{
+  "goals": [
+    {
+      "icon": "🏠",
+      "target": 250000,
+      "title": "Home Down Payment",
+      "projectedDate": "June 2025",
+      "progress": 68
+    },
+    {
+      "icon": "🚨",
+      "target": 50000,
+      "title": "Emergency Fund",
+      "projectedDate": "December 2023",
+      "progress": 85
+    },
+    {
+      "icon": "🎓",
+      "target": 120000,
+      "title": "College Fund",
+      "projectedDate": "August 2030",
+      "progress": 32
+    },
+    {
+      "icon": "👴",
+      "target": 500000,
+      "title": "Retirement",
+      "projectedDate": "January 2045",
+      "progress": 15
+    }
+  ],
+  "investments": [
+    {
+      "icon": "📈",
+      "type": "Stocks",
+      "value": 85000,
+      "return": 8.5,
+      "goalAllocation": "Retirement",
+      "lastUpdated": "Today"
+    },
+    {
+      "icon": "📊",
+      "type": "Mutual Funds",
+      "value": 120000,
+      "return": 7.2,
+      "goalAllocation": "College Fund",
+      "lastUpdated": "Yesterday"
+    },
+    {
+      "icon": "🏢",
+      "type": "Real Estate",
+      "value": 350000,
+      "return": 5.8,
+      "goalAllocation": "Home Down Payment",
+      "lastUpdated": "2 days ago"
+    },
+    {
+      "icon": "🏦",
+      "type": "Fixed Deposits",
+      "value": 45000,
+      "return": 4.5,
+      "goalAllocation": "Emergency Fund",
+      "lastUpdated": "1 week ago"
+    },
+    {
+      "icon": "💎",
+      "type": "Gold Bonds",
+      "value": 25000,
+      "return": 3.2,
+      "goalAllocation": "Retirement",
+      "lastUpdated": "2 weeks ago"
+    }
+  ],
+  "liabilities": [
+    {
+      "icon": "🏠",
+      "type": "Mortgage",
+      "outstanding": 320000,
+      "emi": 1850,
+      "interestRate": 3.5,
+      "tenure": "25 years"
+    },
+    {
+      "icon": "🚗",
+      "type": "Car Loan",
+      "outstanding": 18500,
+      "emi": 450,
+      "interestRate": 4.2,
+      "tenure": "3 years"
+    },
+    {
+      "icon": "🎓",
+      "type": "Student Loan",
+      "outstanding": 42000,
+      "emi": 525,
+      "interestRate": 5.0,
+      "tenure": "7 years"
+    }
+  ],
+  "summary": [
+    {
+      "title": "Total Assets",
+      "amount": 625000,
+      "change": 12.5,
+      "period": "last year",
+      "icon": "💰"
+    },
+    {
+      "title": "Total Liabilities",
+      "amount": 380500,
+      "change": -5.2,
+      "period": "last year",
+      "icon": "📊"
+    },
+    {
+      "title": "Net Worth",
+      "amount": 244500,
+      "change": 18.3,
+      "period": "last year",
+      "icon": "📈"
+    },
+    {
+      "title": "Monthly Savings",
+      "amount": 3200,
+      "change": 8.1,
+      "period": "last month",
+      "icon": "💵"
+    }
+  ]
+} 

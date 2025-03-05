@@ -1,0 +1,6 @@
+npx create-react-app my-react-app
+cd my-react-app
+npm install react-router-dom
+npm install
+rm -rf node_modules package-lock.json
+npm start
