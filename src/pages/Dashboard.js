@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import GoalCard from '../components/FinancialGoals/GoalCard';
 import InvestmentTable from '../components/Investment/InvestmentTable';
 import LiabilitiesTable from '../components/Liabilities/LiabilitiesTable';
@@ -10,6 +10,7 @@ import mockData from '../data/mockData.json';
 function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulate API call delay
@@ -54,7 +55,16 @@ function Dashboard() {
           ))}
         </div>
 
-        <h1>Assets</h1>
+        <div className="section-header">
+          <h1>Assets</h1>
+          <button 
+            className="add-button"
+            onClick={() => navigate('/new-asset')}
+            title="Add new asset"
+          >
+            +
+          </button>
+        </div>
         <InvestmentTable investments={data.investments} />
 
         <h1>Liabilities</h1>
