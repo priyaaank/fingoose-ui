@@ -40,7 +40,7 @@ function Dashboard() {
         Dashboard
       </div>
       <div className="dashboard">
-        <h1>Financial Goals</h1>
+        <h1>Goals</h1>
         <div className="goals-grid">
           {data.goals.map((goal, index) => (
             <GoalCard key={index} {...goal} />

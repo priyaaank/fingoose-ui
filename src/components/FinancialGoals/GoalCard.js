@@ -36,7 +36,7 @@ function GoalCard({
           </div>
           <div className="metric">
             <label>Assumed Inflation</label>
-            <span className="value">{inflation}% per year</span>
+            <span className="value">{inflation}%</span>
           </div>
           <div className="metric">
             <label>Target Date</label>
