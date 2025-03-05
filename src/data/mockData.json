@@ -45,41 +45,46 @@
     {
       "icon": "📈",
       "type": "Stocks",
+      "name": "Vanguard S&P 500 ETF",
       "value": 85000,
-      "return": 8.5,
-      "goalAllocation": "Retirement",
+      "projectedRoi": 8.0,
+      "actualRoi": 8.5,
       "lastUpdated": "Today"
     },
     {
       "icon": "📊",
       "type": "Mutual Funds",
+      "name": "Fidelity Growth Fund",
       "value": 120000,
-      "return": 7.2,
-      "goalAllocation": "College Fund",
+      "projectedRoi": 7.5,
+      "actualRoi": 7.2,
       "lastUpdated": "Yesterday"
     },
     {
       "icon": "🏢",
       "type": "Real Estate",
+      "name": "Downtown Apartment",
       "value": 350000,
-      "return": 5.8,
-      "goalAllocation": "Home Down Payment",
+      "projectedRoi": 5.0,
+      "actualRoi": 5.8,
       "lastUpdated": "2 days ago"
     },
     {
       "icon": "🏦",
       "type": "Fixed Deposits",
+      "name": "Bank of America CD",
       "value": 45000,
-      "return": 4.5,
-      "goalAllocation": "Emergency Fund",
+      "projectedRoi": 4.5,
+      "actualRoi": 4.5,
       "lastUpdated": "1 week ago"
     },
     {
       "icon": "💎",
       "type": "Gold Bonds",
+      "name": "Treasury Gold Bonds",
       "value": 25000,
-      "return": 3.2,
-      "goalAllocation": "Retirement",
+      "projectedRoi": 3.5,
+      "actualRoi": 3.2,
       "lastUpdated": "2 weeks ago"
     }
   ],

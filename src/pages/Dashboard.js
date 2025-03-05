@@ -47,7 +47,7 @@ function Dashboard() {
           ))}
         </div>
 
-        <h1>Investment Portfolio</h1>
+        <h1>Assets</h1>
         <InvestmentTable investments={data.investments} />
 
         <h1>Liabilities Overview</h1>

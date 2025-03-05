@@ -98,4 +98,32 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.investment-table .table-header,
+.investment-table .table-row {
+  grid-template-columns: 1.5fr 2fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.details-btn {
+  padding: 0.25rem 0.75rem;
+  background: transparent;
+  border: 1px solid #ff5722;
+  color: #ff5722;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.details-btn:hover {
+  background: rgba(255, 87, 34, 0.1);
+}
+
+.positive {
+  color: #4caf50;
+}
+
+.negative {
+  color: #f44336;
 } 
