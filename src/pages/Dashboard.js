@@ -67,7 +67,16 @@ function Dashboard() {
         </div>
         <InvestmentTable investments={data.investments} />
 
-        <h1>Liabilities</h1>
+        <div className="section-header">
+          <h1>Liabilities</h1>
+          <button 
+            className="add-button"
+            onClick={() => navigate('/new-liability')}
+            title="Add new liability"
+          >
+            +
+          </button>
+        </div>
         <LiabilitiesTable liabilities={data.liabilities} />
       </div>
     </>
