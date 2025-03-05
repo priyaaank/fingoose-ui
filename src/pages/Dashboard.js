@@ -40,6 +40,13 @@ function Dashboard() {
         Dashboard
       </div>
       <div className="dashboard">
+        <h1>Overview</h1>
+        <div className="summary-grid">
+          {data.summary.map((item, index) => (
+            <SummaryCard key={index} {...item} />
+          ))}
+        </div>
+
         <h1>Goals</h1>
         <div className="goals-grid">
           {data.goals.map((goal, index) => (
@@ -52,13 +59,6 @@ function Dashboard() {
 
         <h1>Liabilities</h1>
         <LiabilitiesTable liabilities={data.liabilities} />
-
-        <h1>Financial Summary</h1>
-        <div className="summary-grid">
-          {data.summary.map((item, index) => (
-            <SummaryCard key={index} {...item} />
-          ))}
-        </div>
       </div>
     </>
   );
