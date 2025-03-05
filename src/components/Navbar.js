@@ -23,30 +23,6 @@ function Navbar() {
           {!isCollapsed && <span>Dashboard</span>}
         </Link>
         <Link 
-          to="/investments" 
-          className={`nav-item ${location.pathname === '/investments' ? 'active' : ''}`}
-          title={isCollapsed ? "Investments" : ""}
-        >
-          <span className="nav-icon">📈</span>
-          {!isCollapsed && <span>Investments</span>}
-        </Link>
-        <Link 
-          to="/liabilities" 
-          className={`nav-item ${location.pathname === '/liabilities' ? 'active' : ''}`}
-          title={isCollapsed ? "Liabilities" : ""}
-        >
-          <span className="nav-icon">📝</span>
-          {!isCollapsed && <span>Liabilities</span>}
-        </Link>
-        <Link 
-          to="/reports" 
-          className={`nav-item ${location.pathname === '/reports' ? 'active' : ''}`}
-          title={isCollapsed ? "Reports" : ""}
-        >
-          <span className="nav-icon">📊</span>
-          {!isCollapsed && <span>Reports</span>}
-        </Link>
-        <Link 
           to="/preferences" 
           className={`nav-item ${location.pathname === '/preferences' ? 'active' : ''}`}
           title={isCollapsed ? "Preferences" : ""}
@@ -56,14 +32,6 @@ function Navbar() {
         </Link>
       </div>
       <div className="nav-right">
-        {!isCollapsed && (
-          <button 
-            className="new-goal-btn"
-            onClick={() => navigate('/new-goal')}
-          >
-            New Goal
-          </button>
-        )}
         <div className="user-profile" title={isCollapsed ? "John Doe" : ""}>
           <img src="/profile-placeholder.png" alt="User Profile" />
           {!isCollapsed && <span>John Doe</span>}

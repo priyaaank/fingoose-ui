@@ -35,11 +35,6 @@ function Dashboard() {
 
   return (
     <>
-      <div className="breadcrumb">
-        <Link to="/">Home</Link>
-        <span>›</span>
-        Dashboard
-      </div>
       <div className="dashboard">
         <h1>Overview</h1>
         <div className="summary-grid">
@@ -48,7 +43,16 @@ function Dashboard() {
           ))}
         </div>
 
-        <h1>Goals</h1>
+        <div className="section-header">
+          <h1>Goals</h1>
+          <button 
+            className="add-button"
+            onClick={() => navigate('/new-goal')}
+            title="Add new goal"
+          >
+            +
+          </button>
+        </div>
         <div className="goals-grid">
           {data.goals.map((goal, index) => (
             <GoalCard key={index} {...goal} />
