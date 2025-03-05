@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function InvestmentTable({ investments }) {
+  const navigate = useNavigate();
+
   return (
     <div className="investment-table">
       <div className="table-header">
@@ -26,7 +29,12 @@ function InvestmentTable({ investments }) {
           </div>
           <div>{investment.lastUpdated}</div>
           <div>
-            <button className="details-btn">Show details</button>
+            <button 
+              className="details-btn"
+              onClick={() => navigate(`/edit-asset/${investment.id}`)}
+            >
+              Details
+            </button>
           </div>
         </div>
       ))}

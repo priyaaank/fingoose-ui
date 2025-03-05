@@ -46,6 +46,14 @@ function Navbar() {
           <span className="nav-icon">📊</span>
           {!isCollapsed && <span>Reports</span>}
         </Link>
+        <Link 
+          to="/preferences" 
+          className={`nav-item ${location.pathname === '/preferences' ? 'active' : ''}`}
+          title={isCollapsed ? "Preferences" : ""}
+        >
+          <span className="nav-icon">⚙️</span>
+          {!isCollapsed && <span>Preferences</span>}
+        </Link>
       </div>
       <div className="nav-right">
         {!isCollapsed && (
