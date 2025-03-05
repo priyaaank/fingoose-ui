@@ -5,6 +5,7 @@ function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // This should come from your auth context in a real app
   
   return (
     <nav className={`main-nav ${isCollapsed ? 'collapsed' : ''}`}>
@@ -32,10 +33,21 @@ function Navbar() {
         </Link>
       </div>
       <div className="nav-right">
-        <div className="user-profile" title={isCollapsed ? "John Doe" : ""}>
-          <img src="/profile-placeholder.png" alt="User Profile" />
-          {!isCollapsed && <span>John Doe</span>}
-        </div>
+        {isLoggedIn ? (
+          <div className="user-profile" title={isCollapsed ? "John Doe" : ""}>
+            <img src="/profile-placeholder.png" alt="User Profile" />
+            {!isCollapsed && <span>John Doe</span>}
+          </div>
+        ) : (
+          <Link 
+            to="/auth" 
+            className="signin-btn"
+            title={isCollapsed ? "Sign In" : ""}
+          >
+            <span className="signin-icon">👤</span>
+            {!isCollapsed && <span>Sign In</span>}
+          </Link>
+        )}
       </div>
       <button 
         className="collapse-btn"
