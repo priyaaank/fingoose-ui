@@ -6,11 +6,13 @@ import LiabilitiesTable from '../components/Liabilities/LiabilitiesTable';
 import SummaryCard from '../components/Summary/SummaryCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { goalService } from '../services/goalService';
+import { assetService } from '../services/assetService';
 import mockData from '../data/mockData.json';
 
 function Dashboard() {
   const [data, setData] = useState(null);
   const [goals, setGoals] = useState([]);
+  const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -21,16 +23,19 @@ function Dashboard() {
       try {
         // In a real application, this would be an API call
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-        const [goalsData, otherData] = await Promise.all([
+        const [goalsData, assetsData, otherData] = await Promise.all([
           goalService.fetchGoals(),
+          assetService.fetchAssets(),
           // Keep other mock data for now
           new Promise(resolve => setTimeout(() => resolve(mockData), 1000))
         ]);
         
         setGoals(goalsData);
+        setAssets(assetsData);
         setData({
           ...otherData,
-          goals: goalsData // Replace mock goals with API goals
+          goals: goalsData, // Replace mock goals with API goals
+          investments: assetsData // Replace mock investments with API assets
         });
       } catch (error) {
         setError('Failed to load dashboard data. Please try again later.');

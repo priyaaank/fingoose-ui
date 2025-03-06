@@ -4,6 +4,15 @@ import { useNavigate } from 'react-router-dom';
 function InvestmentTable({ investments }) {
   const navigate = useNavigate();
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No maturity';
+    const [year, month] = dateString.split('-');
+    return new Date(year, month - 1).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long'
+    });
+  };
+
   return (
     <div className="investment-table">
       <div className="table-header">
@@ -11,12 +20,12 @@ function InvestmentTable({ investments }) {
         <div>Investment Name</div>
         <div>Current Value</div>
         <div>Projected ROI</div>
-        <div>Actual ROI</div>
+        <div>Maturity Date</div>
         <div>Last Updated</div>
         <div>Actions</div>
       </div>
-      {investments.map((investment, index) => (
-        <div key={index} className="table-row">
+      {investments.map((investment) => (
+        <div key={investment.id} className="table-row">
           <div className="investment-type">
             <span className="investment-icon">{investment.icon}</span>
             {investment.type}
@@ -24,14 +33,13 @@ function InvestmentTable({ investments }) {
           <div>{investment.name}</div>
           <div>${investment.value.toLocaleString()}</div>
           <div>{investment.projectedRoi}%</div>
-          <div className={investment.actualRoi >= investment.projectedRoi ? 'positive' : 'negative'}>
-            {investment.actualRoi}%
-          </div>
+          <div>{formatDate(investment.maturityDate)}</div>
           <div>{investment.lastUpdated}</div>
           <div>
             <button 
               className="details-btn"
               onClick={() => navigate(`/edit-asset/${investment.id}`)}
+              title={investment.comments}
             >
               Details
             </button>

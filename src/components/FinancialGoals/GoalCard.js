@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import './GoalCard.css';
 
 function GoalCard({ 
+  id,
   icon, 
   target, 
   title, 
   projectedDate, 
   progress, 
-  targetYear, 
   inflation, 
   currentValue 
 }) {
@@ -20,10 +20,18 @@ function GoalCard({
     return '#ff5722';
   };
 
+  const formatDate = (dateString) => {
+    const [year, month] = dateString.split('-');
+    return new Date(year, month - 1).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long'
+    });
+  };
+
   return (
     <div 
       className="goal-card"
-      onClick={() => navigate(`/edit-goal/${title.replace(/\s+/g, '-').toLowerCase()}`)}
+      onClick={() => navigate(`/edit-goal/${id}`)}
       style={{ cursor: 'pointer' }}
     >
       <div className="goal-icon">{icon}</div>
@@ -32,7 +40,7 @@ function GoalCard({
           <h2>{title}</h2>
           <div className="goal-target">
             <h3>Target: ${target.toLocaleString()}</h3>
-            <span className="target-year">by {targetYear}</span>
+            <span className="target-year">by {formatDate(projectedDate)}</span>
           </div>
         </div>
         
@@ -47,7 +55,7 @@ function GoalCard({
           </div>
           <div className="metric">
             <label>Target Date</label>
-            <span className="value">{projectedDate}</span>
+            <span className="value">{formatDate(projectedDate)}</span>
           </div>
         </div>
 

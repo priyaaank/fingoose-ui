@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { goalService } from '../services/goalService';
 import './EditGoal.css';
 
 function EditGoal() {
@@ -7,27 +8,21 @@ function EditGoal() {
   const { id } = useParams();
   const [goalData, setGoalData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const icons = ['🏠', '🚗', '🎓', '💰', '✈️', '👴', '🏥', '💍', '👶', '🎯'];
 
   useEffect(() => {
-    // In a real app, fetch the goal data based on id
     const fetchGoal = async () => {
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setGoalData({
-          icon: '🏠',
-          title: 'Home Down Payment',
-          target: 250000,
-          currentValue: 170000,
-          projectedDate: '2025-06',
-          targetYear: '2025',
-          inflation: 3.5,
-          progress: 68
-        });
+        const goal = await goalService.fetchGoalById(parseInt(id));
+        setGoalData(goal);
       } catch (error) {
         console.error('Error fetching goal:', error);
+        setError(error.message === 'Failed to fetch goal' 
+          ? 'Goal not found. Please check the URL and try again.'
+          : 'Failed to load goal details. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -44,11 +39,20 @@ function EditGoal() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the data
-    console.log('Updated goal:', goalData);
-    navigate('/');
+    setError(null);
+    setIsSaving(true);
+    
+    try {
+      await goalService.updateGoal(id, goalData);
+      navigate('/');
+    } catch (error) {
+      setError('Failed to update goal. Please try again.');
+      console.error('Error updating goal:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = () => {
@@ -63,6 +67,10 @@ function EditGoal() {
     return <div className="loading">Loading...</div>;
   }
 
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
   return (
     <div className="edit-goal-page">
       <div className="page-header">
@@ -71,6 +79,7 @@ function EditGoal() {
           className="delete-button"
           onClick={handleDelete}
           title="Delete goal"
+          disabled={isSaving}
         >
           Delete
         </button>
@@ -146,7 +155,8 @@ function EditGoal() {
               value={goalData.projectedDate}
               onChange={handleChange}
               required
-              min={new Date().toISOString().slice(0, 7)}
+              min={new Date().toISOString().substring(0, 7)}
+              pattern="\d{4}-\d{2}"
             />
           </div>
 
@@ -167,11 +177,20 @@ function EditGoal() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={() => navigate('/')}>
+          <button 
+            type="button" 
+            className="btn-cancel" 
+            onClick={() => navigate('/')}
+            disabled={isSaving}
+          >
             Cancel
           </button>
-          <button type="submit" className="btn-save">
-            Save Changes
+          <button 
+            type="submit" 
+            className="btn-save"
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>

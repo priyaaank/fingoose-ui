@@ -37,6 +37,42 @@ export const goalService = {
     }
   },
 
+  async updateGoal(id, goalData) {
+    try {
+      const response = await fetch(`${config.apiUrl}/goals/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.transformGoalToApi(goalData))
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update goal');
+      }
+      
+      const result = await response.json();
+      return result.message;
+    } catch (error) {
+      console.error('Error updating goal:', error);
+      throw error;
+    }
+  },
+
+  async fetchGoalById(id) {
+    try {
+      const response = await fetch(`${config.apiUrl}/goals/${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch goal');
+      }
+      const goal = await response.json();
+      return this.transformGoalFromApi(goal);
+    } catch (error) {
+      console.error('Error fetching goal:', error);
+      throw error;
+    }
+  },
+
   // Transform API response to match our UI model
   transformGoalFromApi(apiGoal) {
     return {
@@ -45,7 +81,7 @@ export const goalService = {
       icon: this.getIconForGoalType(apiGoal.type),
       target: apiGoal.target_amount,
       currentValue: apiGoal.current_value,
-      projectedDate: this.formatDate(apiGoal.target_date),
+      projectedDate: apiGoal.target_date,
       targetYear: new Date(apiGoal.target_date).getFullYear().toString(),
       inflation: apiGoal.expected_inflation,
       progress: Math.round((apiGoal.current_value / apiGoal.target_amount) * 100)
@@ -59,7 +95,7 @@ export const goalService = {
       name: uiGoal.title,
       target_amount: parseFloat(uiGoal.target),
       current_value: parseFloat(uiGoal.currentValue),
-      target_date: `${uiGoal.targetYear}-12-31`,
+      target_date: uiGoal.projectedDate,
       expected_inflation: parseFloat(uiGoal.inflation)
     };
   },
@@ -91,13 +127,5 @@ export const goalService = {
       'Default': '🎯'
     };
     return iconMap[type] || iconMap.Default;
-  },
-
-  formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long'
-    });
   }
 }; 

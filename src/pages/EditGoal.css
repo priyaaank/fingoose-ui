@@ -26,4 +26,24 @@
   background-color: #c82333;
 }
 
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.delete-button:disabled,
+.btn-save:disabled,
+.btn-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.delete-button:disabled:hover {
+  background-color: #dc3545;
+}
+
 /* Inherit other styles from NewGoal.css */ 

@@ -9,10 +9,9 @@ function NewGoal() {
     icon: '🎯',
     title: '',
     target: '',
-    targetYear: '',
     currentValue: '',
     inflation: '3.5',
-    projectedDate: ''
+    projectedDate: new Date().toISOString().substring(0, 7)
   });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,20 +112,6 @@ function NewGoal() {
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="targetYear">Target Year</label>
-            <input
-              type="number"
-              id="targetYear"
-              name="targetYear"
-              value={goalData.targetYear}
-              onChange={handleChange}
-              required
-              min={new Date().getFullYear()}
-              placeholder={new Date().getFullYear()}
-            />
-          </div>
-
-          <div className="form-section">
             <label htmlFor="inflation">Expected Inflation (%)</label>
             <input
               type="number"
@@ -139,6 +124,20 @@ function NewGoal() {
               min="0"
               max="100"
               placeholder="3.5"
+            />
+          </div>
+
+          <div className="form-section">
+            <label htmlFor="projectedDate">Target Date</label>
+            <input
+              type="month"
+              id="projectedDate"
+              name="projectedDate"
+              value={goalData.projectedDate}
+              onChange={handleChange}
+              required
+              min={new Date().toISOString().substring(0, 7)}
+              pattern="\d{4}-\d{2}"
             />
           </div>
         </div>
