@@ -3,7 +3,7 @@ const environments = {
     apiUrl: 'http://127.0.0.1:5000/api'
   },
   production: {
-    apiUrl: process.env.REACT_APP_API_URL || 'https://api.wealthtracker.com/api'
+    apiUrl: process.env.REACT_APP_API_URL || 'http://159.89.167.214/api'
   }
 };
 
