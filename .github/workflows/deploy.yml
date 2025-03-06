@@ -18,7 +18,7 @@ jobs:
       - name: Create env file
         run: |
           cat << EOF > .env
-          REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_API_URL=http://api:5000
           REACT_APP_ENV=production
           EOF
 
@@ -69,6 +69,8 @@ jobs:
             --network fingoose-network \
             --restart unless-stopped \
             -p 80:80 \
+            --add-host=host.docker.internal:host-gateway \
+            -e REACT_APP_API_URL=http://fingoose-api:5000 \
             ${{ secrets.DOCKER_USERNAME }}/fingoose-web:latest
           
           # Cleanup old images
