@@ -38,7 +38,7 @@ function InvestmentTable({ investments }) {
           <div>
             <button 
               className="details-btn"
-              onClick={() => navigate(`/edit-asset/${investment.id}`)}
+              onClick={() => navigate(`/assets/${investment.id}/edit`)}
               title={investment.comments}
             >
               Details

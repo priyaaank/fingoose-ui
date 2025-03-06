@@ -39,6 +39,43 @@ export const assetService = {
     }
   },
 
+  async fetchAssetById(id) {
+    try {
+      const response = await fetch(`${config.apiUrl}/assets/${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch asset');
+      }
+      const asset = await response.json();
+      return this.transformAssetFromApi(asset);
+    } catch (error) {
+      console.error('Error fetching asset:', error);
+      throw error;
+    }
+  },
+
+  async updateAsset(id, assetData) {
+    try {
+      const response = await fetch(`${config.apiUrl}/assets/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.transformAssetToApi(assetData))
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update asset');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error updating asset:', error);
+      throw error;
+    }
+  },
+
   // Transform API response to match our UI model
   transformAssetFromApi(apiAsset) {
     return {

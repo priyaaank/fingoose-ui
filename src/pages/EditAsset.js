@@ -1,62 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { assetService } from '../services/assetService';
 import './EditAsset.css';
 
 function EditAsset() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [assetData, setAssetData] = useState(null);
-  const [availableGoals, setAvailableGoals] = useState([]);
-  const [selectedGoals, setSelectedGoals] = useState([]);
+  const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const icons = ['📈', '📊', '🏢', '🏦', '💎', '💰', '🏭', '💳', '🏗️', '🚗'];
   const assetTypes = [
+    'Mutual Fund',
+    'Fixed Deposit',
     'Stocks',
-    'Mutual Funds',
     'Real Estate',
-    'Fixed Deposits',
-    'Gold Bonds',
+    'Gold',
     'Cash',
-    'Corporate Bonds',
-    'Government Securities',
-    'Commodities',
-    'Others'
+    'Other'
   ];
 
   useEffect(() => {
-    // In a real app, fetch the asset data and available goals
-    const fetchData = async () => {
+    const fetchAsset = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setAssetData({
-          icon: '📈',
-          type: 'Stocks',
-          name: 'Sample Stock',
-          value: 10000,
-          projectedRoi: 8.5,
-          maturityDate: '',
-          comments: ''
-        });
-        // Fetch available goals
-        setAvailableGoals([
-          { id: 1, title: 'Home Down Payment', target: 250000 },
-          { id: 2, title: 'Emergency Fund', target: 50000 },
-          { id: 3, title: 'Retirement', target: 1000000 }
-        ]);
-        // Fetch existing goal mappings for this asset
-        setSelectedGoals([
-          { goalId: 1, allocation: 60, title: 'Home Down Payment' },
-          { goalId: 2, allocation: 40, title: 'Emergency Fund' }
-        ]);
+        if (!id || isNaN(parseInt(id))) {
+          throw new Error('Invalid asset ID');
+        }
+        const asset = await assetService.fetchAssetById(parseInt(id));
+        setAssetData(asset);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching asset:', error);
+        setError(
+          error.message === 'Invalid asset ID'
+            ? 'Invalid asset ID. Please check the URL and try again.'
+            : error.message === 'Failed to fetch asset'
+              ? 'Asset not found. Please check the URL and try again.'
+              : 'Failed to load asset details. Please try again.'
+        );
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    fetchAsset();
   }, [id]);
 
   const handleChange = (e) => {
@@ -65,13 +53,32 @@ function EditAsset() {
       ...prev,
       [name]: value
     }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the data
-    console.log('Updated asset:', assetData);
-    navigate('/');
+    setError(null);
+    setFieldErrors({});
+    setIsSaving(true);
+    
+    try {
+      await assetService.updateAsset(id, assetData);
+      navigate('/');
+    } catch (error) {
+      if (error.response?.status === 400 && error.response?.data?.details) {
+        setFieldErrors(error.response.data.details);
+      } else {
+        setError(error.message || 'Failed to update asset. Please try again.');
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = () => {
@@ -82,38 +89,12 @@ function EditAsset() {
     }
   };
 
-  const handleGoalAdd = () => {
-    const select = document.getElementById('goalSelect');
-    const goalId = parseInt(select.value);
-    const goal = availableGoals.find(g => g.id === goalId);
-    
-    if (goal && !selectedGoals.some(g => g.goalId === goalId)) {
-      setSelectedGoals([...selectedGoals, {
-        goalId,
-        title: goal.title,
-        allocation: 0
-      }]);
-    }
-  };
-  
-  const handleGoalRemove = (goalId) => {
-    setSelectedGoals(selectedGoals.filter(g => g.goalId !== goalId));
-  };
-  
-  const handleAllocationChange = (goalId, allocation) => {
-    setSelectedGoals(selectedGoals.map(goal => 
-      goal.goalId === goalId 
-        ? { ...goal, allocation: Math.min(100, Math.max(0, parseInt(allocation) || 0)) }
-        : goal
-    ));
-  };
-  
-  const getTotalAllocation = () => {
-    return selectedGoals.reduce((sum, goal) => sum + goal.allocation, 0);
-  };
-
   if (isLoading || !assetData) {
     return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
   }
 
   return (
@@ -124,57 +105,43 @@ function EditAsset() {
           className="delete-button"
           onClick={handleDelete}
           title="Delete asset"
+          disabled={isSaving}
         >
           Delete
         </button>
       </div>
       
+      {error && <div className="error-message">{error}</div>}
+      
       <form onSubmit={handleSubmit} className="asset-form">
         <div className="form-section">
-          <label>Choose Icon</label>
-          <div className="icon-selector">
-            {icons.map(icon => (
-              <button
-                key={icon}
-                type="button"
-                className={`icon-option ${assetData.icon === icon ? 'selected' : ''}`}
-                onClick={() => setAssetData(prev => ({ ...prev, icon }))}
-              >
-                {icon}
-              </button>
+          <label htmlFor="type">Asset Type</label>
+          <select
+            id="type"
+            name="type"
+            value={assetData.type}
+            onChange={handleChange}
+            required
+          >
+            {assetTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
             ))}
-          </div>
+          </select>
+          {fieldErrors.type && <div className="field-error">{fieldErrors.type}</div>}
         </div>
 
-        <div className="form-row">
-          <div className="form-section">
-            <label htmlFor="type">Asset Type</label>
-            <select
-              id="type"
-              name="type"
-              value={assetData.type}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select asset type</option>
-              {assetTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-section">
-            <label htmlFor="name">Asset Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={assetData.name}
-              onChange={handleChange}
-              required
-              placeholder="e.g., Vanguard S&P 500 ETF"
-            />
-          </div>
+        <div className="form-section">
+          <label htmlFor="name">Asset Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={assetData.name}
+            onChange={handleChange}
+            required
+            placeholder="e.g., Vanguard 500 Index Fund"
+          />
+          {fieldErrors.name && <div className="field-error">{fieldErrors.name}</div>}
         </div>
 
         <div className="form-row">
@@ -188,8 +155,12 @@ function EditAsset() {
               onChange={handleChange}
               required
               min="0"
-              placeholder="0"
+              step="0.01"
+              placeholder="0.00"
             />
+            {fieldErrors.current_value && (
+              <div className="field-error">{fieldErrors.current_value}</div>
+            )}
           </div>
 
           <div className="form-section">
@@ -202,110 +173,60 @@ function EditAsset() {
               onChange={handleChange}
               required
               step="0.1"
-              min="0"
               placeholder="0.0"
             />
+            {fieldErrors.projected_roi && (
+              <div className="field-error">{fieldErrors.projected_roi}</div>
+            )}
           </div>
         </div>
 
         <div className="form-section">
-          <label htmlFor="maturityDate">
-            Maturity Date
-            <span className="optional-label">(Optional)</span>
-          </label>
+          <label htmlFor="maturityDate">Maturity Date (if applicable)</label>
           <input
-            type="date"
+            type="month"
             id="maturityDate"
             name="maturityDate"
-            value={assetData.maturityDate}
+            value={assetData.maturityDate || ''}
             onChange={handleChange}
+            min={new Date().toISOString().substring(0, 7)}
+            pattern="\d{4}-\d{2}"
           />
+          {fieldErrors.maturity_date && (
+            <div className="field-error">{fieldErrors.maturity_date}</div>
+          )}
         </div>
 
         <div className="form-section">
-          <label htmlFor="comments">
-            Additional Comments
-            <span className="optional-label">(Optional)</span>
-          </label>
+          <label htmlFor="comments">Additional Comments</label>
           <textarea
             id="comments"
             name="comments"
-            value={assetData.comments}
+            value={assetData.comments || ''}
             onChange={handleChange}
-            placeholder="Add any additional notes about this asset..."
             rows="3"
+            placeholder="Any additional notes about this asset..."
           />
-        </div>
-
-        <div className="form-section">
-          <label>Goal Allocations</label>
-          <div className="goal-allocation-container">
-            <div className="goal-selector">
-              <select 
-                id="goalSelect"
-                className="goal-select"
-              >
-                <option value="">Select a goal to add...</option>
-                {availableGoals
-                  .filter(goal => !selectedGoals.some(sg => sg.goalId === goal.id))
-                  .map(goal => (
-                    <option key={goal.id} value={goal.id}>
-                      {goal.title}
-                    </option>
-                  ))
-                }
-              </select>
-              <button 
-                type="button" 
-                className="btn-add-goal"
-                onClick={handleGoalAdd}
-              >
-                Add Goal
-              </button>
-            </div>
-            
-            <div className="selected-goals">
-              {selectedGoals.map(goal => (
-                <div key={goal.goalId} className="goal-allocation-row">
-                  <span className="goal-title">{goal.title}</span>
-                  <div className="goal-allocation-controls">
-                    <input
-                      type="number"
-                      value={goal.allocation}
-                      onChange={(e) => handleAllocationChange(goal.goalId, e.target.value)}
-                      min="0"
-                      max="100"
-                      className="allocation-input"
-                    />
-                    <span className="percentage">%</span>
-                    <button
-                      type="button"
-                      className="btn-remove-goal"
-                      onClick={() => handleGoalRemove(goal.goalId)}
-                      title="Remove goal"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="allocation-summary">
-              <span className="total-label">Total Allocation:</span>
-              <span className={`total-value ${getTotalAllocation() > 100 ? 'error' : ''}`}>
-                {getTotalAllocation()}%
-              </span>
-            </div>
-          </div>
+          {fieldErrors.additional_comments && (
+            <div className="field-error">{fieldErrors.additional_comments}</div>
+          )}
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={() => navigate('/')}>
+          <button 
+            type="button" 
+            className="btn-cancel" 
+            onClick={() => navigate('/')}
+            disabled={isSaving}
+          >
             Cancel
           </button>
-          <button type="submit" className="btn-save">
-            Save Changes
+          <button 
+            type="submit" 
+            className="btn-save"
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>
