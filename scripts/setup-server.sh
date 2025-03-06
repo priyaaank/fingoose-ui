@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Update system
 sudo apt update && sudo apt upgrade -y
@@ -6,9 +7,24 @@ sudo apt update && sudo apt upgrade -y
 # Install required packages
 sudo apt install -y nginx certbot python3-certbot-nginx
 
-# Create web directory if it doesn't exist
-sudo mkdir -p /var/www/html
-sudo chown -R $USER:$USER /var/www/html
+# Install Node.js 18.x
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+
+# Configure firewall
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw --force enable
+
+# Create application directory
+sudo mkdir -p /var/www/wealthtracker
+sudo chown -R $USER:$USER /var/www/wealthtracker
+
+# Remove default nginx site
+sudo rm -f /etc/nginx/sites-enabled/default
+
+# Create SSL certificate (uncomment and update domain)
+# sudo certbot --nginx -d yourdomain.com
 
 # Create nginx configuration
 sudo tee /etc/nginx/sites-available/react-app << EOF
@@ -45,12 +61,6 @@ EOF
 
 # Enable the site
 sudo ln -sf /etc/nginx/sites-available/react-app /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
 
 # Test and restart nginx
-sudo nginx -t && sudo systemctl restart nginx
-
-# Setup firewall
-sudo ufw allow OpenSSH
-sudo ufw allow 'Nginx Full'
-sudo ufw --force enable 
+sudo nginx -t && sudo systemctl restart nginx 

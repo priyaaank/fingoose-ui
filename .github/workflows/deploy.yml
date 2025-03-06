@@ -24,8 +24,10 @@ jobs:
 
       - name: Create env file
         run: |
-          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" > .env
-          echo "REACT_APP_ENV=production" >> .env
+          cat << EOF > .env
+          REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_ENV=production
+          EOF
 
       - name: Build application
         run: npm run build
@@ -37,26 +39,76 @@ jobs:
           known_hosts: unnecessary
           if_key_exists: replace
 
-      - name: Adding Known Hosts
+      - name: Deploy to Digital Ocean
+        env:
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USERNAME: ${{ secrets.DO_USERNAME }}
+          APP_DIR: /var/www/fingoose
         run: |
+          # Ensure SSH directory exists with correct permissions
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          ssh-keyscan -H ${{ secrets.DO_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H $DO_HOST >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Deploy with rsync
-        run: |
-          rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            ./build/ \
-            ${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/html/
-
-      - name: Verify deployment
-        run: |
+          # Create deployment script
+          cat << 'EOF' > deploy.sh
+          #!/bin/bash
           set -e
-          ssh ${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }} '
-            echo "Checking nginx configuration..."
-            sudo nginx -t
-            echo "Restarting nginx..."
-            sudo systemctl restart nginx
-          ' 
+
+          # Create app directory if it doesn't exist
+          sudo mkdir -p $APP_DIR
+          sudo chown -R $DO_USERNAME:$DO_USERNAME $APP_DIR
+
+          # Backup current deployment if it exists
+          if [ -d "$APP_DIR/current" ]; then
+            mv $APP_DIR/current $APP_DIR/previous_$(date +%Y%m%d_%H%M%S)
+          fi
+
+          # Create new deployment directory
+          mkdir -p $APP_DIR/current
+
+          # Copy new files
+          rsync -av --delete ./build/ $APP_DIR/current/
+
+          # Update Nginx configuration
+          sudo tee /etc/nginx/sites-available/fingoose << 'NGINX'
+          server {
+              listen 80;
+              server_name $DO_HOST;
+              root $APP_DIR/current;
+              index index.html;
+
+              # Handle React routing
+              location / {
+                  try_files $uri $uri/ /index.html;
+                  add_header Cache-Control "no-cache";
+              }
+
+              # Cache static files
+              location /static {
+                  expires 1y;
+                  add_header Cache-Control "public, no-transform";
+              }
+
+              # Security headers
+              add_header X-Frame-Options "SAMEORIGIN";
+              add_header X-XSS-Protection "1; mode=block";
+              add_header X-Content-Type-Options "nosniff";
+          }
+          NGINX
+
+          # Enable site and restart Nginx
+          sudo ln -sf /etc/nginx/sites-available/fingoose /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo systemctl restart nginx
+
+          # Cleanup old deployments (keep last 5)
+          cd $APP_DIR
+          ls -1dt previous_* | tail -n +6 | xargs -r rm -rf
+          EOF
+
+          # Copy deployment script and execute
+          chmod +x deploy.sh
+          scp deploy.sh $DO_USERNAME@$DO_HOST:~/
+          ssh $DO_USERNAME@$DO_HOST './deploy.sh' 
