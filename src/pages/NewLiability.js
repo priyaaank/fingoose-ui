@@ -1,32 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { liabilityService } from '../services/liabilityService';
 import './NewLiability.css';
 
 function NewLiability() {
   const navigate = useNavigate();
   const [liabilityData, setLiabilityData] = useState({
     icon: '🏠',
-    type: '',
+    type: 'Home Loan',
     name: '',
-    borrowedPrincipal: '',
-    outstanding: '',
-    emi: '',
+    borrowedAmount: '',
+    outstandingAmount: '',
     interestRate: '',
-    startDate: '',
-    tenure: '',
+    emi: '',
+    remainingTenure: '',
+    totalTenure: '',
+    startDate: new Date().toISOString().substring(0, 7),
     comments: ''
   });
+  const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const icons = ['🏠', '🚗', '🎓', '💳', '🏦', '🏥', '💼', '📱'];
   const liabilityTypes = [
-    'Mortgage',
+    'Home Loan',
     'Car Loan',
-    'Student Loan',
-    'Credit Card',
     'Personal Loan',
-    'Medical Debt',
+    'Education Loan',
+    'Credit Card',
     'Business Loan',
-    'Others'
+    'Other'
   ];
 
   const handleChange = (e) => {
@@ -35,13 +39,33 @@ function NewLiability() {
       ...prev,
       [name]: value
     }));
+    // Clear field-specific error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the data
-    console.log('New liability:', liabilityData);
-    navigate('/');
+    setError(null);
+    setFieldErrors({});
+    setIsSubmitting(true);
+    
+    try {
+      await liabilityService.createLiability(liabilityData);
+      navigate('/');
+    } catch (error) {
+      if (error.response?.status === 400 && error.response?.data?.details) {
+        setFieldErrors(error.response.data.details);
+      } else {
+        setError(error.message || 'Failed to create liability. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -49,6 +73,8 @@ function NewLiability() {
       <div className="page-header">
         <h1>Add New Liability</h1>
       </div>
+      
+      {error && <div className="error-message">{error}</div>}
       
       <form onSubmit={handleSubmit} className="liability-form">
         <div className="form-section">
@@ -82,6 +108,7 @@ function NewLiability() {
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
+            {fieldErrors.type && <div className="field-error">{fieldErrors.type}</div>}
           </div>
 
           <div className="form-section">
@@ -100,12 +127,12 @@ function NewLiability() {
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="borrowedPrincipal">Borrowed Principal ($)</label>
+            <label htmlFor="borrowedAmount">Borrowed Amount ($)</label>
             <input
               type="number"
-              id="borrowedPrincipal"
-              name="borrowedPrincipal"
-              value={liabilityData.borrowedPrincipal}
+              id="borrowedAmount"
+              name="borrowedAmount"
+              value={liabilityData.borrowedAmount}
               onChange={handleChange}
               required
               min="0"
@@ -114,12 +141,12 @@ function NewLiability() {
           </div>
 
           <div className="form-section">
-            <label htmlFor="outstanding">Outstanding Amount ($)</label>
+            <label htmlFor="outstandingAmount">Outstanding Amount ($)</label>
             <input
               type="number"
-              id="outstanding"
-              name="outstanding"
-              value={liabilityData.outstanding}
+              id="outstandingAmount"
+              name="outstandingAmount"
+              value={liabilityData.outstandingAmount}
               onChange={handleChange}
               required
               min="0"
@@ -161,18 +188,33 @@ function NewLiability() {
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="tenure">Tenure</label>
+            <label htmlFor="remainingTenure">Remaining Tenure</label>
             <input
               type="text"
-              id="tenure"
-              name="tenure"
-              value={liabilityData.tenure}
+              id="remainingTenure"
+              name="remainingTenure"
+              value={liabilityData.remainingTenure}
               onChange={handleChange}
               required
               placeholder="e.g., 30 years"
             />
           </div>
 
+          <div className="form-section">
+            <label htmlFor="totalTenure">Total Tenure</label>
+            <input
+              type="text"
+              id="totalTenure"
+              name="totalTenure"
+              value={liabilityData.totalTenure}
+              onChange={handleChange}
+              required
+              placeholder="e.g., 30 years"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
           <div className="form-section">
             <label htmlFor="startDate">
               Start Date
@@ -204,11 +246,20 @@ function NewLiability() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={() => navigate('/')}>
+          <button 
+            type="button" 
+            className="btn-cancel" 
+            onClick={() => navigate('/')}
+            disabled={isSubmitting}
+          >
             Cancel
           </button>
-          <button type="submit" className="btn-save">
-            Add Liability
+          <button 
+            type="submit" 
+            className="btn-save"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Adding...' : 'Add Liability'}
           </button>
         </div>
       </form>

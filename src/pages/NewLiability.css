@@ -11,4 +11,29 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Inherit other styles from NewAsset.css and NewGoal.css */ 
+/* Inherit other styles from NewAsset.css and NewGoal.css */
+
+.btn-save:hover {
+  background: #f4511e;
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+select:focus {
+  outline: none;
+  border-color: #ff5722;
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.1);
+} 
