@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { goalService } from '../services/goalService';
 import './NewGoal.css';
 
 function NewGoal() {
@@ -13,6 +14,8 @@ function NewGoal() {
     inflation: '3.5',
     projectedDate: ''
   });
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const icons = ['🎯', '🏠', '🚗', '🎓', '👴', '✈️', '💍', '💰', '🏦', '📱'];
 
@@ -24,11 +27,20 @@ function NewGoal() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the data
-    console.log('New goal:', goalData);
-    navigate('/');
+    setError(null);
+    setIsSubmitting(true);
+    
+    try {
+      await goalService.createGoal(goalData);
+      navigate('/');
+    } catch (error) {
+      setError('Failed to create goal. Please try again.');
+      console.error('Error creating goal:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -36,6 +48,8 @@ function NewGoal() {
       <div className="page-header">
         <h1>Create New Goal</h1>
       </div>
+      
+      {error && <div className="error-message">{error}</div>}
       
       <form onSubmit={handleSubmit} className="goal-form">
         <div className="form-section">
@@ -130,11 +144,20 @@ function NewGoal() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={() => navigate('/')}>
+          <button 
+            type="button" 
+            className="btn-cancel" 
+            onClick={() => navigate('/')}
+            disabled={isSubmitting}
+          >
             Cancel
           </button>
-          <button type="submit" className="btn-save">
-            Create Goal
+          <button 
+            type="submit" 
+            className="btn-save"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Creating...' : 'Create Goal'}
           </button>
         </div>
       </form>

@@ -113,4 +113,19 @@
 
 .btn-save:hover {
   background: #f4511e;
+}
+
+.btn-save:disabled,
+.btn-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-save:disabled:hover {
+  background: #ff5722;
+}
+
+.btn-cancel:disabled:hover {
+  border-color: #ddd;
+  color: #666;
 } 
