@@ -5,7 +5,7 @@ import './Navbar.css';
 function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This should come from your auth context in a real app
+  const [isLoggedIn] = useState(false); // This should come from your auth context in a real app
   
   return (
     <nav className={`main-nav ${isCollapsed ? 'collapsed' : ''}`}>
