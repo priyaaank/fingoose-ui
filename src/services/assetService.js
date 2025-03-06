@@ -76,6 +76,25 @@ export const assetService = {
     }
   },
 
+  async deleteAsset(id) {
+    try {
+      const response = await fetch(`${config.apiUrl}/assets/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        if (response.status === 404) {
+          throw new Error('Asset not found');
+        }
+        throw new Error(data.error || 'Failed to delete asset');
+      }
+    } catch (error) {
+      console.error('Error deleting asset:', error);
+      throw error;
+    }
+  },
+
   // Transform API response to match our UI model
   transformAssetFromApi(apiAsset) {
     return {

@@ -73,6 +73,25 @@ export const goalService = {
     }
   },
 
+  async deleteGoal(id) {
+    try {
+      const response = await fetch(`${config.apiUrl}/goals/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        if (response.status === 404) {
+          throw new Error('Goal not found');
+        }
+        throw new Error(data.error || 'Failed to delete goal');
+      }
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+      throw error;
+    }
+  },
+
   // Transform API response to match our UI model
   transformGoalFromApi(apiGoal) {
     return {

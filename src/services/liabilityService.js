@@ -82,6 +82,25 @@ export const liabilityService = {
     }
   },
 
+  async deleteLiability(id) {
+    try {
+      const response = await fetch(`${config.apiUrl}/liabilities/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        if (response.status === 404) {
+          throw new Error('Liability not found');
+        }
+        throw new Error(data.error || 'Failed to delete liability');
+      }
+    } catch (error) {
+      console.error('Error deleting liability:', error);
+      throw error;
+    }
+  },
+
   // Transform API response to match our UI model
   transformLiabilityFromApi(apiLiability) {
     return {

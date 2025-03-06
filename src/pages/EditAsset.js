@@ -11,6 +11,7 @@ function EditAsset() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const assetTypes = [
     'Mutual Fund',
@@ -81,11 +82,18 @@ function EditAsset() {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this asset?')) {
-      // Here you would typically delete the asset
-      console.log('Deleting asset:', id);
-      navigate('/');
+      setError(null);
+      setIsDeleting(true);
+      try {
+        await assetService.deleteAsset(id);
+        navigate('/');
+      } catch (error) {
+        setError(error.message || 'Failed to delete asset. Please try again.');
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -105,7 +113,7 @@ function EditAsset() {
           className="delete-button"
           onClick={handleDelete}
           title="Delete asset"
-          disabled={isSaving}
+          disabled={isSaving || isDeleting}
         >
           Delete
         </button>
@@ -217,16 +225,16 @@ function EditAsset() {
             type="button" 
             className="btn-cancel" 
             onClick={() => navigate('/')}
-            disabled={isSaving}
+            disabled={isSaving || isDeleting}
           >
             Cancel
           </button>
           <button 
             type="submit" 
             className="btn-save"
-            disabled={isSaving}
+            disabled={isSaving || isDeleting}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? 'Saving...' : isDeleting ? 'Deleting...' : 'Save Changes'}
           </button>
         </div>
       </form>

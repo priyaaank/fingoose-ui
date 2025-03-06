@@ -11,6 +11,7 @@ function EditLiability() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const icons = ['🏠', '🚗', '🎓', '💳', '🏦', '🏥', '💼', '📱'];
   const liabilityTypes = [
@@ -78,11 +79,18 @@ function EditLiability() {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this liability?')) {
-      // Here you would typically delete the liability
-      console.log('Deleting liability:', id);
-      navigate('/');
+      setError(null);
+      setIsDeleting(true);
+      try {
+        await liabilityService.deleteLiability(id);
+        navigate('/');
+      } catch (error) {
+        setError(error.message || 'Failed to delete liability. Please try again.');
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -115,9 +123,10 @@ function EditLiability() {
         <button 
           className="delete-button"
           onClick={handleDelete}
+          disabled={isDeleting || isSaving}
           title="Delete liability"
         >
-          Delete
+          {isDeleting ? 'Deleting...' : 'Delete'}
         </button>
       </div>
       

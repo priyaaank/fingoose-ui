@@ -10,6 +10,7 @@ function EditGoal() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const icons = ['🏠', '🚗', '🎓', '💰', '✈️', '👴', '🏥', '💍', '👶', '🎯'];
 
@@ -55,11 +56,18 @@ function EditGoal() {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this goal?')) {
-      // Here you would typically delete the goal
-      console.log('Deleting goal:', id);
-      navigate('/');
+      setError(null);
+      setIsDeleting(true);
+      try {
+        await goalService.deleteGoal(id);
+        navigate('/');
+      } catch (error) {
+        setError(error.message || 'Failed to delete goal. Please try again.');
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -79,7 +87,7 @@ function EditGoal() {
           className="delete-button"
           onClick={handleDelete}
           title="Delete goal"
-          disabled={isSaving}
+          disabled={isSaving || isDeleting}
         >
           Delete
         </button>
@@ -181,16 +189,16 @@ function EditGoal() {
             type="button" 
             className="btn-cancel" 
             onClick={() => navigate('/')}
-            disabled={isSaving}
+            disabled={isSaving || isDeleting}
           >
             Cancel
           </button>
           <button 
             type="submit" 
             className="btn-save"
-            disabled={isSaving}
+            disabled={isSaving || isDeleting}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? 'Saving...' : isDeleting ? 'Deleting...' : 'Save Changes'}
           </button>
         </div>
       </form>
