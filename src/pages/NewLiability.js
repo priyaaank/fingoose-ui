@@ -216,17 +216,18 @@ function NewLiability() {
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="startDate">
-              Start Date
-              <span className="optional-label">(Optional)</span>
-            </label>
+            <label htmlFor="startDate">Start Date</label>
             <input
-              type="date"
+              type="month"
               id="startDate"
               name="startDate"
               value={liabilityData.startDate}
               onChange={handleChange}
+              pattern="\d{4}-\d{2}"
             />
+            {fieldErrors.start_date && (
+              <div className="field-error">{fieldErrors.start_date}</div>
+            )}
           </div>
         </div>
 

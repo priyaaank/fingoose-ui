@@ -131,7 +131,7 @@ export const liabilityService = {
       emi: parseFloat(uiLiability.emi),
       remaining_tenure: parseInt(uiLiability.remainingTenure),
       total_tenure: parseInt(uiLiability.totalTenure),
-      start_date: uiLiability.startDate,
+      start_date: uiLiability.startDate || undefined,
       additional_comments: uiLiability.comments || ''
     };
   },

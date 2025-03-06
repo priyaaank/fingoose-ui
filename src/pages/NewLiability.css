@@ -100,4 +100,19 @@ select:focus {
   outline: none;
   border-color: #ff5722;
   box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.1);
+}
+
+.form-section input[type="month"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-section input[type="month"]:focus {
+  outline: none;
+  border-color: #ff5722;
+  box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.1);
 } 

@@ -30,7 +30,6 @@ function LiabilitiesTable({ liabilities }) {
         <div>EMI</div>
         <div>Interest Rate</div>
         <div>Remaining Tenure</div>
-        <div>Start Date</div>
         <div>Actions</div>
       </div>
       {liabilities.map((liability) => (
@@ -44,7 +43,6 @@ function LiabilitiesTable({ liabilities }) {
           <div>${liability.emi.toLocaleString()}/month</div>
           <div>{liability.interestRate}%</div>
           <div>{formatTenure(liability.remainingTenure)}</div>
-          <div>{formatDate(liability.startDate)}</div>
           <div>
             <button 
               className="details-btn"
