@@ -94,20 +94,6 @@ function EditLiability() {
     }
   };
 
-  const validateForm = () => {
-    const errors = {};
-    
-    if (parseFloat(liabilityData.outstandingAmount) > parseFloat(liabilityData.borrowedAmount)) {
-      errors.current_outstanding = "Current outstanding cannot exceed borrowed principle";
-    }
-    
-    if (parseInt(liabilityData.remainingTenure) > parseInt(liabilityData.totalTenure)) {
-      errors.remaining_tenure = "Remaining tenure cannot exceed total tenure";
-    }
-    
-    return errors;
-  };
-
   if (isLoading || !liabilityData) {
     return <div className="loading">Loading...</div>;
   }

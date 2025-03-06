@@ -8,10 +8,8 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import { goalService } from '../services/goalService';
 import { assetService } from '../services/assetService';
 import { liabilityService } from '../services/liabilityService';
-import mockData from '../data/mockData.json';
 
 function Dashboard() {
-  const [data, setData] = useState(null);
   const [goals, setGoals] = useState([]);
   const [assets, setAssets] = useState([]);
   const [liabilities, setLiabilities] = useState([]);
@@ -57,12 +55,6 @@ function Dashboard() {
         ];
         
         setSummary(summaryData);
-        setData({
-          goals: goalsData,
-          investments: assetsData,
-          liabilities: liabilitiesData,
-          summary: summaryData
-        });
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load dashboard data. Please try again.');

@@ -4,15 +4,6 @@ import { useNavigate } from 'react-router-dom';
 function LiabilitiesTable({ liabilities }) {
   const navigate = useNavigate();
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const [year, month] = dateString.split('-');
-    return new Date(year, month - 1).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long'
-    });
-  };
-
   const formatTenure = (months) => {
     const years = Math.floor(months / 12);
     const remainingMonths = months % 12;
