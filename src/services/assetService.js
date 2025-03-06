@@ -107,6 +107,10 @@ export const assetService = {
       actualRoi: apiAsset.projected_roi, // Using projected as actual for now
       maturityDate: apiAsset.maturity_date,
       comments: apiAsset.additional_comments,
+      goalMappings: apiAsset.goal_mappings?.map(mapping => ({
+        goalId: mapping.goal_id,
+        allocation: mapping.allocation_percentage
+      })) || [],
       lastUpdated: new Date().toLocaleDateString() // Using current date as last updated
     };
   },
@@ -119,7 +123,11 @@ export const assetService = {
       current_value: parseFloat(uiAsset.value),
       projected_roi: parseFloat(uiAsset.projectedRoi),
       maturity_date: uiAsset.maturityDate || undefined,  // Send undefined if empty to omit field
-      additional_comments: uiAsset.comments || ''
+      additional_comments: uiAsset.comments || '',
+      goal_mappings: uiAsset.goalMappings?.map(mapping => ({
+        goal_id: parseInt(mapping.goalId),
+        allocation_percentage: parseFloat(mapping.allocation)
+      })) || []
     };
   },
 

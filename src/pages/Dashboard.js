@@ -15,36 +15,57 @@ function Dashboard() {
   const [goals, setGoals] = useState([]);
   const [assets, setAssets] = useState([]);
   const [liabilities, setLiabilities] = useState([]);
+  const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate API call delay
     const fetchData = async () => {
       try {
-        // In a real application, this would be an API call
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-        const [goalsData, assetsData, liabilitiesData, otherData] = await Promise.all([
+        const [goalsData, assetsData, liabilitiesData] = await Promise.all([
           goalService.fetchGoals(),
           assetService.fetchAssets(),
-          liabilityService.fetchLiabilities(),
-          // Keep other mock data for now
-          new Promise(resolve => setTimeout(() => resolve(mockData), 1000))
+          liabilityService.fetchLiabilities()
         ]);
         
         setGoals(goalsData);
         setAssets(assetsData);
         setLiabilities(liabilitiesData);
+        
+        // Calculate summary data
+        const summaryData = [
+          {
+            title: 'Total Assets',
+            value: assetsData.reduce((sum, asset) => sum + (parseFloat(asset.value) || 0), 0),
+            change: '+5.2%',
+            trend: 'up'
+          },
+          {
+            title: 'Total Liabilities',
+            value: liabilitiesData.reduce((sum, liability) => sum + (parseFloat(liability.outstandingAmount) || 0), 0),
+            change: '-2.1%',
+            trend: 'down'
+          },
+          {
+            title: 'Net Worth',
+            value: assetsData.reduce((sum, asset) => sum + (parseFloat(asset.value) || 0), 0) - 
+                   liabilitiesData.reduce((sum, liability) => sum + (parseFloat(liability.outstandingAmount) || 0), 0),
+            change: '+3.8%',
+            trend: 'up'
+          }
+        ];
+        
+        setSummary(summaryData);
         setData({
-          ...otherData,
-          goals: goalsData, // Replace mock goals with API goals
-          investments: assetsData, // Replace mock investments with API assets
-          liabilities: liabilitiesData
+          goals: goalsData,
+          investments: assetsData,
+          liabilities: liabilitiesData,
+          summary: summaryData
         });
       } catch (error) {
-        setError('Failed to load dashboard data. Please try again later.');
-        console.error('Dashboard data loading error:', error);
+        console.error('Error fetching data:', error);
+        setError('Failed to load dashboard data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -66,7 +87,7 @@ function Dashboard() {
       <div className="dashboard">
         <h1>Overview</h1>
         <div className="summary-grid">
-          {data.summary.map((item, index) => (
+          {summary.map((item, index) => (
             <SummaryCard key={index} {...item} />
           ))}
         </div>
@@ -97,7 +118,7 @@ function Dashboard() {
             +
           </button>
         </div>
-        <InvestmentTable investments={data.investments} />
+        <InvestmentTable investments={assets} />
 
         <div className="section-header">
           <h1>Liabilities</h1>
@@ -109,7 +130,7 @@ function Dashboard() {
             +
           </button>
         </div>
-        <LiabilitiesTable liabilities={data.liabilities} />
+        <LiabilitiesTable liabilities={liabilities} />
       </div>
     </>
   );

@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assetService } from '../services/assetService';
+import { goalService } from '../services/goalService';
+import GoalAllocation from '../components/Asset/GoalAllocation';
 import './NewAsset.css';
 
 function NewAsset() {
   const navigate = useNavigate();
+  const [goals, setGoals] = useState([]);
   const [assetData, setAssetData] = useState({
     icon: '📈',
     type: 'Mutual Fund',
@@ -12,7 +15,8 @@ function NewAsset() {
     value: '',
     projectedRoi: '',
     maturityDate: '',
-    comments: ''
+    comments: '',
+    goalMappings: []
   });
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -28,6 +32,19 @@ function NewAsset() {
     'Cash',
     'Other'
   ];
+
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const goalsData = await goalService.fetchGoals();
+        setGoals(goalsData);
+      } catch (error) {
+        console.error('Error fetching goals:', error);
+      }
+    };
+    
+    fetchGoals();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -187,6 +204,15 @@ function NewAsset() {
             <div className="field-error">{fieldErrors.additional_comments}</div>
           )}
         </div>
+
+        <GoalAllocation
+          goals={goals}
+          goalMappings={assetData.goalMappings}
+          onChange={(newMappings) => setAssetData(prev => ({
+            ...prev,
+            goalMappings: newMappings
+          }))}
+        />
 
         <div className="form-actions">
           <button 
