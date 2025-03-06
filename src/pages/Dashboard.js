@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import GoalCard from '../components/FinancialGoals/GoalCard';
 import InvestmentTable from '../components/Investment/InvestmentTable';
 import LiabilitiesTable from '../components/Liabilities/LiabilitiesTable';
 import SummaryCard from '../components/Summary/SummaryCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { goalService } from '../services/goalService';
 import mockData from '../data/mockData.json';
 
 function Dashboard() {
   const [data, setData] = useState(null);
+  const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,9 +21,20 @@ function Dashboard() {
       try {
         // In a real application, this would be an API call
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-        setData(mockData);
+        const [goalsData, otherData] = await Promise.all([
+          goalService.fetchGoals(),
+          // Keep other mock data for now
+          new Promise(resolve => setTimeout(() => resolve(mockData), 1000))
+        ]);
+        
+        setGoals(goalsData);
+        setData({
+          ...otherData,
+          goals: goalsData // Replace mock goals with API goals
+        });
       } catch (error) {
-        console.error('Error loading data:', error);
+        setError('Failed to load dashboard data. Please try again later.');
+        console.error('Dashboard data loading error:', error);
       } finally {
         setLoading(false);
       }
@@ -29,8 +43,12 @@ function Dashboard() {
     fetchData();
   }, []);
 
-  if (loading || !data) {
+  if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
   }
 
   return (
@@ -54,8 +72,8 @@ function Dashboard() {
           </button>
         </div>
         <div className="goals-grid">
-          {data.goals.map((goal, index) => (
-            <GoalCard key={index} {...goal} />
+          {goals.map((goal) => (
+            <GoalCard key={goal.id} {...goal} />
           ))}
         </div>
 
