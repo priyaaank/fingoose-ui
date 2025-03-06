@@ -48,7 +48,7 @@ function LiabilitiesTable({ liabilities }) {
           <div>
             <button 
               className="details-btn"
-              onClick={() => navigate(`/edit-liability/${liability.id}`)}
+              onClick={() => navigate(`/liabilities/${liability.id}/edit`)}
               title={liability.comments}
             >
               Details

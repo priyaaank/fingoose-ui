@@ -39,6 +39,49 @@ export const liabilityService = {
     }
   },
 
+  async fetchLiabilityById(id) {
+    try {
+      const response = await fetch(`${config.apiUrl}/liabilities/${id}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Liability not found');
+        }
+        throw new Error('Failed to fetch liability');
+      }
+      const liability = await response.json();
+      return this.transformLiabilityFromApi(liability);
+    } catch (error) {
+      console.error('Error fetching liability:', error);
+      throw error;
+    }
+  },
+
+  async updateLiability(id, liabilityData) {
+    try {
+      const response = await fetch(`${config.apiUrl}/liabilities/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.transformLiabilityToApi(liabilityData))
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Liability not found');
+        }
+        throw new Error(data.error || 'Failed to update liability');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error updating liability:', error);
+      throw error;
+    }
+  },
+
   // Transform API response to match our UI model
   transformLiabilityFromApi(apiLiability) {
     return {

@@ -34,6 +34,7 @@ function AppContent() {
           <Route path="/edit-goal/:id" element={<EditGoal />} />
           <Route path="/preferences" element={<UserPreferences />} />
           <Route path="/assets/:id/edit" element={<EditAsset />} />
+          <Route path="/liabilities/:id/edit" element={<EditLiability />} />
         </Routes>
       </div>
     </div>

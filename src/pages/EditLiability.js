@@ -1,45 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { liabilityService } from '../services/liabilityService';
 import './EditLiability.css';
 
 function EditLiability() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [liabilityData, setLiabilityData] = useState(null);
+  const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const icons = ['🏠', '🚗', '🎓', '💳', '🏦', '🏥', '💼', '📱'];
   const liabilityTypes = [
-    'Mortgage',
+    'Home Loan',
     'Car Loan',
-    'Student Loan',
-    'Credit Card',
     'Personal Loan',
-    'Medical Debt',
+    'Education Loan',
+    'Credit Card',
     'Business Loan',
-    'Others'
+    'Other'
   ];
 
   useEffect(() => {
-    // In a real app, fetch the liability data based on id
     const fetchLiability = async () => {
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setLiabilityData({
-          icon: '🏠',
-          type: 'Mortgage',
-          name: 'Home Loan',
-          borrowedPrincipal: 300000,
-          outstanding: 250000,
-          emi: 1200,
-          interestRate: 3.5,
-          startDate: '2023-01-01',
-          tenure: '30 years',
-          comments: ''
-        });
+        if (!id || isNaN(parseInt(id))) {
+          throw new Error('Invalid liability ID');
+        }
+        const liability = await liabilityService.fetchLiabilityById(parseInt(id));
+        setLiabilityData(liability);
       } catch (error) {
         console.error('Error fetching liability:', error);
+        setError(
+          error.message === 'Invalid liability ID'
+            ? 'Invalid liability ID. Please check the URL and try again.'
+            : error.message === 'Liability not found'
+              ? 'Liability not found. Please check the URL and try again.'
+              : 'Failed to load liability details. Please try again.'
+        );
       } finally {
         setIsLoading(false);
       }
@@ -54,13 +54,28 @@ function EditLiability() {
       ...prev,
       [name]: value
     }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the data
-    console.log('Updated liability:', liabilityData);
-    navigate('/');
+    setError(null);
+    setFieldErrors({});
+    setIsSaving(true);
+    
+    try {
+      await liabilityService.updateLiability(id, liabilityData);
+      navigate('/');
+    } catch (error) {
+      setError(error.message || 'Failed to update liability. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = () => {
@@ -71,8 +86,26 @@ function EditLiability() {
     }
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    if (parseFloat(liabilityData.outstandingAmount) > parseFloat(liabilityData.borrowedAmount)) {
+      errors.current_outstanding = "Current outstanding cannot exceed borrowed principle";
+    }
+    
+    if (parseInt(liabilityData.remainingTenure) > parseInt(liabilityData.totalTenure)) {
+      errors.remaining_tenure = "Remaining tenure cannot exceed total tenure";
+    }
+    
+    return errors;
+  };
+
   if (isLoading || !liabilityData) {
     return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
   }
 
   return (
@@ -120,6 +153,7 @@ function EditLiability() {
                 <option key={type} value={type}>{type}</option>
               ))}
             </select>
+            {fieldErrors.type && <div className="field-error">{fieldErrors.type}</div>}
           </div>
 
           <div className="form-section">
@@ -138,31 +172,35 @@ function EditLiability() {
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="borrowedPrincipal">Borrowed Principal ($)</label>
+            <label htmlFor="borrowedAmount">Borrowed Amount ($)</label>
             <input
               type="number"
-              id="borrowedPrincipal"
-              name="borrowedPrincipal"
-              value={liabilityData.borrowedPrincipal}
+              id="borrowedAmount"
+              name="borrowedAmount"
+              value={liabilityData.borrowedAmount}
               onChange={handleChange}
-              required
               min="0"
-              placeholder="0"
+              step="0.01"
             />
+            {fieldErrors.borrowed_principle && (
+              <div className="field-error">{fieldErrors.borrowed_principle}</div>
+            )}
           </div>
 
           <div className="form-section">
-            <label htmlFor="outstanding">Outstanding Amount ($)</label>
+            <label htmlFor="outstandingAmount">Outstanding Amount ($)</label>
             <input
               type="number"
-              id="outstanding"
-              name="outstanding"
-              value={liabilityData.outstanding}
+              id="outstandingAmount"
+              name="outstandingAmount"
+              value={liabilityData.outstandingAmount}
               onChange={handleChange}
-              required
               min="0"
-              placeholder="0"
+              step="0.01"
             />
+            {fieldErrors.current_outstanding && (
+              <div className="field-error">{fieldErrors.current_outstanding}</div>
+            )}
           </div>
         </div>
 
@@ -215,12 +253,16 @@ function EditLiability() {
         <div className="form-section">
           <label htmlFor="startDate">Start Date</label>
           <input
-            type="date"
+            type="month"
             id="startDate"
             name="startDate"
             value={liabilityData.startDate}
             onChange={handleChange}
+            pattern="\d{4}-\d{2}"
           />
+          {fieldErrors.start_date && (
+            <div className="field-error">{fieldErrors.start_date}</div>
+          )}
         </div>
 
         <div className="form-section">
@@ -239,11 +281,20 @@ function EditLiability() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn-cancel" onClick={() => navigate('/')}>
+          <button 
+            type="button" 
+            className="btn-cancel" 
+            onClick={() => navigate('/')}
+            disabled={isSaving}
+          >
             Cancel
           </button>
-          <button type="submit" className="btn-save">
-            Save Changes
+          <button 
+            type="submit" 
+            className="btn-save"
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>
