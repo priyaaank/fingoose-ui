@@ -45,12 +45,6 @@ jobs:
           DO_USERNAME: ${{ secrets.DO_USERNAME }}
           APP_DIR: /var/www/fingoose
         run: |
-          # Ensure SSH directory exists with correct permissions
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan -H $DO_HOST >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
           # Create deployment script
           cat << 'EOF' > deploy.sh
           #!/bin/bash
