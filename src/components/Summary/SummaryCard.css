@@ -1,0 +1,41 @@
+.value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.mini-graph {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 40px;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.bar-column {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar {
+  width: 100%;
+  background-color: #ff5722;
+  opacity: 0.7;
+  border-radius: 2px;
+  transition: height 0.3s ease;
+}
+
+.bar-column:hover .bar {
+  opacity: 1;
+}
+
+.summary-card.down .bar {
+  background-color: #f44336;
+}
+
+.summary-card.up .bar {
+  background-color: #4caf50;
+} 
