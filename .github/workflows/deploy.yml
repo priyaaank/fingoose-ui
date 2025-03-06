@@ -5,22 +5,15 @@ on:
     branches:
       - main
 
+env:
+  DOCKER_HUB_REPO: "priyaaank/fingoose-web"
+
 jobs:
-  deploy:
+  build_and_push:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Create env file
         run: |
@@ -29,9 +22,23 @@ jobs:
           REACT_APP_ENV=production
           EOF
 
-      - name: Build application
-        run: npm run build
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }},${{ env.DOCKER_HUB_REPO }}:latest
+
+  deploy:
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    steps:
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -41,68 +48,43 @@ jobs:
 
       - name: Deploy to Digital Ocean
         env:
+          DOCKER_HUB_REPO: "priyaaank/fingoose-web"
           DO_HOST: ${{ secrets.DO_HOST }}
           DO_USERNAME: ${{ secrets.DO_USERNAME }}
-          APP_DIR: /var/www/fingoose
         run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H $DO_HOST >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
           # Create deployment script
           cat << 'EOF' > deploy.sh
           #!/bin/bash
           set -e
 
-          # Create app directory if it doesn't exist
-          sudo mkdir -p $APP_DIR
-          sudo chown -R $DO_USERNAME:$DO_USERNAME $APP_DIR
+          # Login to Docker Hub
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-          # Backup current deployment if it exists
-          if [ -d "$APP_DIR/current" ]; then
-            mv $APP_DIR/current $APP_DIR/previous_$(date +%Y%m%d_%H%M%S)
-          fi
+          # Pull new image
+          IMAGE="${DOCKER_HUB_REPO}:${GITHUB_SHA}"
+          docker pull $IMAGE
 
-          # Create new deployment directory
-          mkdir -p $APP_DIR/current
+          # Stop and remove existing container if it exists
+          docker rm -f fingoose-web || true
 
-          # Copy new files
-          rsync -av --delete ./build/ $APP_DIR/current/
+          # Run new container
+          docker run -d \
+            --name fingoose-web \
+            --restart unless-stopped \
+            -p 80:80 \
+            $IMAGE
 
-          # Update Nginx configuration
-          sudo tee /etc/nginx/sites-available/fingoose << 'NGINX'
-          server {
-              listen 80;
-              server_name $DO_HOST;
-              root $APP_DIR/current;
-              index index.html;
-
-              # Handle React routing
-              location / {
-                  try_files $uri $uri/ /index.html;
-                  add_header Cache-Control "no-cache";
-              }
-
-              # Cache static files
-              location /static {
-                  expires 1y;
-                  add_header Cache-Control "public, no-transform";
-              }
-
-              # Security headers
-              add_header X-Frame-Options "SAMEORIGIN";
-              add_header X-XSS-Protection "1; mode=block";
-              add_header X-Content-Type-Options "nosniff";
-          }
-          NGINX
-
-          # Enable site and restart Nginx
-          sudo ln -sf /etc/nginx/sites-available/fingoose /etc/nginx/sites-enabled/
-          sudo nginx -t
-          sudo systemctl restart nginx
-
-          # Cleanup old deployments (keep last 5)
-          cd $APP_DIR
-          ls -1dt previous_* | tail -n +6 | xargs -r rm -rf
+          # Cleanup old images
+          docker image prune -af
           EOF
 
-          # Copy deployment script and execute
+          # Copy and execute deployment script
           chmod +x deploy.sh
           scp deploy.sh $DO_USERNAME@$DO_HOST:~/
           ssh $DO_USERNAME@$DO_HOST './deploy.sh' 
