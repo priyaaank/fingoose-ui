@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { userProfileService } from '../../services/userProfileService';
 
 function LiabilitiesTable({ liabilities }) {
   const navigate = useNavigate();
@@ -30,8 +31,12 @@ function LiabilitiesTable({ liabilities }) {
             {liability.type}
           </div>
           <div>{liability.name}</div>
-          <div>${liability.outstandingAmount.toLocaleString()}</div>
-          <div>${liability.emi.toLocaleString()}/month</div>
+          <div className="amount-column">
+            {userProfileService.formatCurrency(liability.outstandingAmount)}
+          </div>
+          <div className="emi-column">
+            {userProfileService.formatCurrency(liability.monthlyPayment)}
+          </div>
           <div>{liability.interestRate}%</div>
           <div>{formatTenure(liability.remainingTenure)}</div>
           <div>

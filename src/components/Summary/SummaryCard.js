@@ -1,4 +1,5 @@
 import React from 'react';
+import { userProfileService } from '../../services/userProfileService';
 
 function SummaryCard({ title, value, change, trend }) {
   const isPositive = change > 0;
@@ -15,7 +16,7 @@ function SummaryCard({ title, value, change, trend }) {
       <div className="summary-icon">{trend === 'up' ? '↑' : '↓'}</div>
       <div className="summary-details">
         <h3>{title}</h3>
-        <div className="value">${(value || 0).toLocaleString()}</div>
+        <div className="value">{userProfileService.formatCurrency(value)}</div>
         <p className={`change ${isPositive ? 'positive' : 'negative'}`}>
           {isPositive ? '↑' : '↓'} {Math.abs(change)}%
         </p>

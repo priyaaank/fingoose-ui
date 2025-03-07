@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { userProfileService } from '../../services/userProfileService';
 import './GoalSummary.css';
 
 function GoalSummary({ goal }) {
@@ -25,18 +26,20 @@ function GoalSummary({ goal }) {
           <h3 className="goal-name">{goal.name}</h3>
         </div>
         <div className="goal-target">
-          Target: ${goal.projected_value?.toLocaleString()} by {goal.target_year}
+          Target: {userProfileService.formatCurrency(goal.projected_value)} by {goal.target_year}
         </div>
       </div>
 
       <div className="goal-metrics">
         <div className="metric">
           <div className="metric-label">INITIAL VALUE</div>
-          <div className="metric-value">${goal.initial_goal_value?.toLocaleString()}</div>
+          <div className="metric-value">
+            {userProfileService.formatCurrency(goal.initial_goal_value)}
+          </div>
         </div>
         <div className="metric">
           <div className="metric-label">CREATION YEAR</div>
-          <div className="metric-value">{goal.goal_creation_year}</div>
+          <div className="metric-value">{goal.goal_creation_year || '-'}</div>
         </div>
         <div className="metric">
           <div className="metric-label">MONTHS LEFT</div>
@@ -44,7 +47,7 @@ function GoalSummary({ goal }) {
         </div>
         <div className="metric">
           <div className="metric-label">INFLATION RATE</div>
-          <div className="metric-value">{goal.projected_inflation}%</div>
+          <div className="metric-value">{goal.projected_inflation || 0}%</div>
         </div>
       </div>
 
@@ -58,7 +61,7 @@ function GoalSummary({ goal }) {
         <div className="progress-details">
           <span>{goal.progress || 35}% complete</span>
           <span className="saved-amount">
-            Saved: ${((goal.projected_value * (goal.progress || 35)) / 100).toLocaleString()}
+            Saved: {userProfileService.formatCurrency((goal.projected_value * (goal.progress || 35)) / 100)}
           </span>
         </div>
       </div>

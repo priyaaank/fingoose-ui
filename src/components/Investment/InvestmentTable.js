@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { userProfileService } from '../../services/userProfileService';
 
 function InvestmentTable({ investments }) {
   const navigate = useNavigate();
@@ -31,7 +32,9 @@ function InvestmentTable({ investments }) {
             {investment.type}
           </div>
           <div>{investment.name}</div>
-          <div>${investment.value.toLocaleString()}</div>
+          <div className="value-column">
+            {userProfileService.formatCurrency(investment.value)}
+          </div>
           <div>{investment.projectedRoi}%</div>
           <div>{formatDate(investment.maturityDate)}</div>
           <div>{investment.lastUpdated}</div>
