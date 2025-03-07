@@ -46,24 +46,60 @@
   gap: 1.5rem;
 }
 
+.preset-emojis {
+  margin-bottom: 2rem;
+}
+
+.preset-emojis label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-weight: 500;
+}
+
 .icon-selector {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
+.goal-basics {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.emoji-input-section {
+  width: 80px;
+}
+
+.emoji-input {
+  font-size: 1.5rem;
+  width: 100%;
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+.goal-name-section {
+  flex-grow: 1;
+}
+
 .icon-option {
-  width: 50px;
-  height: 50px;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #ddd;
   border-radius: 4px;
   background: none;
   cursor: pointer;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.2s ease;
 }
 
@@ -75,6 +111,14 @@
 .icon-option.selected {
   border-color: #ff5722;
   background-color: rgba(255, 87, 34, 0.1);
+}
+
+.custom-icon-button {
+  background-color: #f5f5f5;
+}
+
+.custom-icon-button:hover {
+  background-color: #eeeeee;
 }
 
 .form-actions {

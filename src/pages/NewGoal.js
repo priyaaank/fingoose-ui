@@ -5,38 +5,61 @@ import './NewGoal.css';
 
 function NewGoal() {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
+  
   const [goalData, setGoalData] = useState({
+    name: '',
     icon: '🎯',
-    title: '',
-    target: '',
-    currentValue: '',
-    inflation: '3.5',
-    projectedDate: new Date().toISOString().substring(0, 7)
+    goal_creation_year: currentYear,
+    target_year: currentYear + 1,
+    projected_inflation: 5.0,
+    initial_goal_value: ''
   });
+  
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const icons = ['🎯', '🏠', '🚗', '🎓', '👴', '✈️', '💍', '💰', '🏦', '📱'];
+  const presetIcons = ['🎯', '💰', '🏠', '🚗', '🎓', '✈️', '👶', '💍', '🏦', '📈'];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'icon') {
+      // Basic emoji validation - check if string contains at least one emoji
+      if (value && /\p{Emoji}/u.test(value)) {
+        setFieldErrors(prev => ({ ...prev, icon: null }));
+      } else {
+        setFieldErrors(prev => ({ ...prev, icon: 'Please enter a valid emoji' }));
+      }
+    }
     setGoalData(prev => ({
       ...prev,
       [name]: value
     }));
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
     setIsSubmitting(true);
-    
+
     try {
       await goalService.createGoal(goalData);
       navigate('/');
     } catch (error) {
-      setError('Failed to create goal. Please try again.');
-      console.error('Error creating goal:', error);
+      if (error.response?.data?.details) {
+        setFieldErrors(error.response.data.details);
+      } else {
+        setError(error.message || 'Failed to create goal. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -44,22 +67,23 @@ function NewGoal() {
 
   return (
     <div className="new-goal-page">
-      <div className="page-header">
-        <h1>Create New Goal</h1>
-      </div>
+      <h1>Create New Goal</h1>
       
       {error && <div className="error-message">{error}</div>}
       
       <form onSubmit={handleSubmit} className="goal-form">
-        <div className="form-section">
-          <label>Choose Icon</label>
+        <div className="preset-emojis">
+          <label>Preset Icons</label>
           <div className="icon-selector">
-            {icons.map(icon => (
+            {presetIcons.map(icon => (
               <button
                 key={icon}
                 type="button"
                 className={`icon-option ${goalData.icon === icon ? 'selected' : ''}`}
-                onClick={() => setGoalData(prev => ({ ...prev, icon }))}
+                onClick={() => {
+                  setGoalData(prev => ({ ...prev, icon }));
+                  setFieldErrors(prev => ({ ...prev, icon: null }));
+                }}
               >
                 {icon}
               </button>
@@ -67,78 +91,107 @@ function NewGoal() {
           </div>
         </div>
 
-        <div className="form-section">
-          <label htmlFor="title">Goal Name</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={goalData.title}
-            onChange={handleChange}
-            required
-            placeholder="e.g., Home Down Payment"
-          />
-        </div>
-
-        <div className="form-row">
-          <div className="form-section">
-            <label htmlFor="target">Target Amount ($)</label>
+        <div className="form-row goal-basics">
+          <div className="form-section emoji-input-section">
+            <label htmlFor="icon">Goal Icon</label>
             <input
-              type="number"
-              id="target"
-              name="target"
-              value={goalData.target}
+              type="text"
+              id="icon"
+              name="icon"
+              value={goalData.icon}
               onChange={handleChange}
+              className="emoji-input"
+              placeholder="😀"
+              maxLength="2"
               required
-              min="0"
-              placeholder="0"
             />
+            {fieldErrors.icon && <div className="field-error">{fieldErrors.icon}</div>}
           </div>
-
-          <div className="form-section">
-            <label htmlFor="currentValue">Current Savings ($)</label>
+          
+          <div className="form-section goal-name-section">
+            <label htmlFor="name">Goal Name</label>
             <input
-              type="number"
-              id="currentValue"
-              name="currentValue"
-              value={goalData.currentValue}
+              type="text"
+              id="name"
+              name="name"
+              value={goalData.name}
               onChange={handleChange}
+              placeholder="e.g., Retirement Fund"
               required
-              min="0"
-              placeholder="0"
             />
+            {fieldErrors.name && <div className="field-error">{fieldErrors.name}</div>}
           </div>
         </div>
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="inflation">Expected Inflation (%)</label>
+            <label htmlFor="initial_goal_value">Initial Goal Value ($)</label>
             <input
               type="number"
-              id="inflation"
-              name="inflation"
-              value={goalData.inflation}
+              id="initial_goal_value"
+              name="initial_goal_value"
+              value={goalData.initial_goal_value}
               onChange={handleChange}
+              min="0"
+              step="0.01"
+              placeholder="0.00"
               required
-              step="0.1"
+            />
+            {fieldErrors.initial_goal_value && (
+              <div className="field-error">{fieldErrors.initial_goal_value}</div>
+            )}
+          </div>
+
+          <div className="form-section">
+            <label htmlFor="projected_inflation">Projected Inflation (%)</label>
+            <input
+              type="number"
+              id="projected_inflation"
+              name="projected_inflation"
+              value={goalData.projected_inflation}
+              onChange={handleChange}
               min="0"
               max="100"
-              placeholder="3.5"
+              step="0.1"
+              required
             />
+            {fieldErrors.projected_inflation && (
+              <div className="field-error">{fieldErrors.projected_inflation}</div>
+            )}
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-section">
+            <label htmlFor="goal_creation_year">Start Year</label>
+            <input
+              type="number"
+              id="goal_creation_year"
+              name="goal_creation_year"
+              value={goalData.goal_creation_year}
+              onChange={handleChange}
+              min={currentYear}
+              required
+            />
+            {fieldErrors.goal_creation_year && (
+              <div className="field-error">{fieldErrors.goal_creation_year}</div>
+            )}
           </div>
 
           <div className="form-section">
-            <label htmlFor="projectedDate">Target Date</label>
+            <label htmlFor="target_year">Target Year</label>
             <input
-              type="month"
-              id="projectedDate"
-              name="projectedDate"
-              value={goalData.projectedDate}
+              type="number"
+              id="target_year"
+              name="target_year"
+              value={goalData.target_year}
               onChange={handleChange}
+              min={goalData.goal_creation_year + 1}
               required
-              min={new Date().toISOString().substring(0, 7)}
-              pattern="\d{4}-\d{2}"
             />
+            {fieldErrors.target_year && (
+              <div className="field-error">{fieldErrors.target_year}</div>
+            )}
           </div>
         </div>
 
