@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GoalCard from '../components/FinancialGoals/GoalCard';
+import GoalSummary from '../components/GoalForm/GoalSummary';
 import InvestmentTable from '../components/Investment/InvestmentTable';
 import LiabilitiesTable from '../components/Liabilities/LiabilitiesTable';
 import SummaryCard from '../components/Summary/SummaryCard';
@@ -98,7 +98,7 @@ function Dashboard() {
         <div className="goals-grid">
           {goals && goals.length > 0 ? (
             goals.map((goal) => (
-              <GoalCard key={goal.id} goal={goal} />
+              <GoalSummary key={goal.id} goal={goal} />
             ))
           ) : (
             <div className="empty-state">
