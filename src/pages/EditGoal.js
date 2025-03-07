@@ -99,11 +99,38 @@ function EditGoal() {
     }));
   };
 
+  const validateGoalData = (data) => {
+    const errors = {};
+    const currentYear = new Date().getFullYear();
+    
+    // Validate target year
+    if (data.target_year) {
+      const targetYear = parseInt(data.target_year);
+      if (targetYear < currentYear) {
+        errors.target_year = 'Target year cannot be in the past';
+      } else if (targetYear > currentYear + 100) {
+        errors.target_year = 'Target year cannot be more than 100 years in the future';
+      }
+    }
+
+    // ... any other existing validations ...
+
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
     setIsSubmitting(true);
+    
+    // Validate before submitting
+    const validationErrors = validateGoalData(goalData);
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const updatedGoal = await goalService.updateGoal(id, {

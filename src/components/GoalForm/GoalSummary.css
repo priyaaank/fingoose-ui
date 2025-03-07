@@ -26,11 +26,13 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
+  justify-content: flex-start;
 }
 
 .goal-icon {
   font-size: 2rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .goal-name {
@@ -39,6 +41,7 @@
   color: #333;
   margin: 0;
   text-align: left;
+  flex: 1;
 }
 
 .goal-target {
