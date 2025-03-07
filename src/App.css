@@ -1,17 +1,19 @@
 .App {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #f5f5f5;  /* Light gray background */
+  background-color: #f5f7fa;
 }
 
 .main-content {
-  flex: 1;
+  padding: 80px 20px 20px;  /* Added top padding to account for navbar */
+  min-height: calc(100vh - 60px);  /* Subtract navbar height */
+}
+
+.auth-page {
   display: flex;
-  flex-direction: column;
-  padding: 20px;
-  margin-left: 240px; /* Width of the sidebar */
-  transition: margin-left 0.3s ease;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f7fa;
 }
 
 /* Remove margin and padding for auth pages */

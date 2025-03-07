@@ -6,8 +6,8 @@
 
 .page-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 2rem;
   margin-bottom: 2rem;
 }
 
@@ -42,34 +42,105 @@
   cursor: pointer;
 }
 
-.asset-details {
+.asset-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.asset-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.asset-header h1 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.metric-item {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.detail-row {
-  display: flex;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #eee;
+.metric-item h3 {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.detail-row:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-
-.label {
+.metric-value {
+  font-size: 1.5rem;
   font-weight: 500;
-  width: 150px;
+  color: #333;
+}
+
+.allocations-section {
+  margin-bottom: 3rem;
+}
+
+.allocations-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.allocation-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.goal-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.allocation-bar {
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+}
+
+.allocation-progress {
+  height: 100%;
+  background: #2196F3;
+  border-radius: 2px;
+}
+
+.no-allocations {
+  text-align: center;
+  padding: 2rem;
+  background: #f5f5f5;
+  border-radius: 8px;
   color: #666;
 }
 
-.value {
-  flex: 1;
-  color: #333;
+.comments-section {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.last-updated {
+  text-align: right;
+  color: #666;
+  font-size: 0.875rem;
 }
 
 .form-actions {
