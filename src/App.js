@@ -11,6 +11,7 @@ import EditGoal from './pages/EditGoal';
 import EditLiability from './pages/EditLiability';
 import UserPreferences from './pages/UserPreferences';
 import Auth from './pages/Auth';
+import ViewAsset from './pages/ViewAsset';
 import './App.css';
 import './styles/Dashboard.css';
 
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/edit-goal/:id" element={<EditGoal />} />
           <Route path="/preferences" element={<UserPreferences />} />
           <Route path="/liabilities/:id/edit" element={<EditLiability />} />
+          <Route path="/view-asset/:id" element={<ViewAsset />} />
         </Routes>
       </div>
     </div>

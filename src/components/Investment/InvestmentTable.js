@@ -23,6 +23,7 @@ function InvestmentTable({ investments }) {
         <div>Projected ROI</div>
         <div>Maturity Date</div>
         <div>Last Updated</div>
+        <div>Actions</div>
       </div>
       {investments.map((investment) => (
         <div key={investment.id} className="table-row">
@@ -37,6 +38,15 @@ function InvestmentTable({ investments }) {
           <div>{investment.projectedRoi}%</div>
           <div>{formatDate(investment.maturityDate)}</div>
           <div>{investment.lastUpdated}</div>
+          <div>
+            <button 
+              className="details-btn"
+              onClick={() => navigate(`/view-asset/${investment.id}`)}
+              title="View details"
+            >
+              Details
+            </button>
+          </div>
         </div>
       ))}
     </div>
