@@ -9,11 +9,21 @@ function GoalSummary({ goal }) {
     navigate(`/edit-goal/${goal.id}`);
   };
 
+  // Calculate months remaining
+  const calculateMonthsRemaining = () => {
+    const today = new Date();
+    const targetYear = parseInt(goal.target_year);
+    const monthsRemaining = ((targetYear - today.getFullYear()) * 12) - today.getMonth();
+    return monthsRemaining > 0 ? monthsRemaining : 0;
+  };
+
   return (
     <div className="goal-summary" onClick={handleClick}>
       <div className="goal-header">
-        <div className="goal-icon">{goal.icon}</div>
-        <h3 className="goal-name">{goal.name}</h3>
+        <div className="goal-title">
+          <span className="goal-icon">{goal.icon}</span>
+          <h3 className="goal-name">{goal.name}</h3>
+        </div>
         <div className="goal-target">
           Target: ${goal.projected_value?.toLocaleString()} by {goal.target_year}
         </div>
@@ -21,8 +31,16 @@ function GoalSummary({ goal }) {
 
       <div className="goal-metrics">
         <div className="metric">
-          <div className="metric-label">TARGET YEAR</div>
-          <div className="metric-value">{goal.target_year}</div>
+          <div className="metric-label">INITIAL VALUE</div>
+          <div className="metric-value">${goal.initial_goal_value?.toLocaleString()}</div>
+        </div>
+        <div className="metric">
+          <div className="metric-label">CREATION YEAR</div>
+          <div className="metric-value">{goal.goal_creation_year}</div>
+        </div>
+        <div className="metric">
+          <div className="metric-label">MONTHS LEFT</div>
+          <div className="metric-value">{calculateMonthsRemaining()} months</div>
         </div>
         <div className="metric">
           <div className="metric-label">INFLATION RATE</div>
