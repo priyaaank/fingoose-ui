@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { goalService } from '../services/goalService';
 import { assetService } from '../services/assetService';
 import './EditGoal.css';
+import AssetMappings from '../components/Asset/AssetMappings';
 
 function EditGoal() {
   const navigate = useNavigate();
@@ -26,49 +27,47 @@ function EditGoal() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableAssets, setAvailableAssets] = useState([]);
-  const [assetAllocations, setAssetAllocations] = useState({});
-  const [selectedAssetId, setSelectedAssetId] = useState('');
+  const [assets, setAssets] = useState([]);
+  const [selectedAsset, setSelectedAsset] = useState('');
+  const [assetMappings, setAssetMappings] = useState([]);
 
   // Helper function to convert string ID to number
   const toNumber = (id) => typeof id === 'string' ? parseInt(id, 10) : id;
 
   useEffect(() => {
-    const fetchGoal = async () => {
+    const fetchData = async () => {
       try {
-        const goal = await goalService.fetchGoalById(id);
-        setGoalData(goal);
-        setOriginalData(goal);
-        // Initialize asset allocations from existing mappings
-        const allocations = {};
-        goal.assets?.forEach(asset => {
-          allocations[toNumber(asset.id)] = asset.allocation_percentage;
-        });
-        setAssetAllocations(allocations);
+        setIsLoading(true);
+        const [goalData, fetchedAssets] = await Promise.all([
+          goalService.fetchGoalById(id),
+          assetService.fetchAssets()
+        ]);
+        
+        // Set goal data
+        setGoalData(goalData);
+        setOriginalData(goalData);
+        
+        // Set assets
+        setAssets(fetchedAssets);
+        
+        // Initialize asset mappings from goal data
+        const mappings = goalData.assets?.map(asset => ({
+          asset_id: asset.id,
+          asset_name: asset.name,
+          allocation_percentage: asset.allocation_percentage
+        })) || [];
+        setAssetMappings(mappings);
+        
+        setError(null);
       } catch (error) {
-        setError(error.message || 'Failed to fetch goal details');
+        setError('Failed to load goal data');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchGoal();
+    fetchData();
   }, [id]);
-
-  useEffect(() => {
-    const fetchAssets = async () => {
-      try {
-        const assets = await assetService.fetchAssets();
-        setAvailableAssets(assets);
-      } catch (error) {
-        console.error('Failed to fetch assets:', error);
-      }
-    };
-
-    if (isEditMode) {
-      fetchAssets();
-    }
-  }, [isEditMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,12 +90,38 @@ function EditGoal() {
     }
   };
 
-  const handleAllocationChange = (assetId, value) => {
-    const percentage = Math.min(100, Math.max(0, Number(value)));
-    setAssetAllocations(prev => ({
+  const handleAddAsset = () => {
+    if (!selectedAsset) return;
+    
+    const asset = assets.find(a => a.id === parseInt(selectedAsset));
+    if (!asset) return;
+
+    setAssetMappings(prev => ([
       ...prev,
-      [toNumber(assetId)]: percentage
-    }));
+      { 
+        asset_id: asset.id, 
+        asset_name: asset.name,
+        allocation_percentage: 0 
+      }
+    ]));
+    setSelectedAsset('');
+  };
+
+  const handleAllocationChange = (assetId, value) => {
+    const percentage = parseFloat(value);
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) return;
+
+    setAssetMappings(prev => prev.map(mapping =>
+      mapping.asset_id === assetId
+        ? { ...mapping, allocation_percentage: percentage }
+        : mapping
+    ));
+  };
+
+  const handleRemoveAsset = (assetId) => {
+    setAssetMappings(prev => 
+      prev.filter(mapping => mapping.asset_id !== assetId)
+    );
   };
 
   const validateGoalData = (data) => {
@@ -135,12 +160,7 @@ function EditGoal() {
     try {
       const updatedGoal = await goalService.updateGoal(id, {
         ...goalData,
-        asset_allocations: Object.entries(assetAllocations)
-          .filter(([_, percentage]) => percentage > 0)
-          .map(([assetId, percentage]) => ({
-            asset_id: toNumber(assetId),
-            allocation_percentage: percentage
-          }))
+        asset_mappings: assetMappings
       });
       setGoalData(updatedGoal.goal);
       setOriginalData(updatedGoal.goal);
@@ -360,97 +380,15 @@ function EditGoal() {
             </div>
           </div>
 
-          <div className="form-section asset-mapping">
-            <h3>Asset Allocations</h3>
-            <div className="asset-allocation-form">
-              <div className="asset-selector">
-                <select
-                  value={selectedAssetId}
-                  onChange={(e) => setSelectedAssetId(e.target.value)}
-                  className="asset-dropdown"
-                >
-                  <option value="">Select an asset</option>
-                  {availableAssets
-                    .filter(asset => !assetAllocations[toNumber(asset.id)])
-                    .map(asset => (
-                      <option key={asset.id} value={asset.id}>
-                        {asset.icon} {asset.name} (${parseFloat(asset.current_value).toLocaleString()})
-                      </option>
-                    ))}
-                </select>
-                <button
-                  type="button"
-                  className="btn-add-asset"
-                  disabled={!selectedAssetId}
-                  onClick={() => {
-                    setAssetAllocations(prev => ({
-                      ...prev,
-                      [toNumber(selectedAssetId)]: 0
-                    }));
-                    setSelectedAssetId('');
-                  }}
-                >
-                  Add
-                </button>
-              </div>
-
-              <div className="allocated-assets">
-                {Object.entries(assetAllocations).map(([assetId, percentage]) => {
-                  const asset = availableAssets.find(a => toNumber(a.id) === toNumber(assetId));
-                  if (!asset) return null;
-                  
-                  return (
-                    <div key={asset.id} className="asset-allocation-item">
-                      <div className="asset-info">
-                        <span className="asset-icon">{asset.icon}</span>
-                        <div className="asset-details">
-                          <span className="asset-name">{asset.name}</span>
-                          <span className="asset-value">
-                            ${parseFloat(asset.current_value).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="allocation-input">
-                        <div className="allocation-input-group">
-                          <input
-                            className="allocation-input-number"
-                            type="number"
-                            value={percentage}
-                            onChange={(e) => handleAllocationChange(asset.id, e.target.value)}
-                            min="0"
-                            max="100"
-                            step="1"
-                            placeholder="0"
-                          />
-                          <div className="allocation-input-symbol">%</div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className="btn-remove-asset"
-                        onClick={() => {
-                          const newAllocations = { ...assetAllocations };
-                          delete newAllocations[asset.id];
-                          setAssetAllocations(newAllocations);
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            {availableAssets.length === 0 ? (
-              <div className="no-assets-message">
-                No assets available for allocation. Please add assets first.
-              </div>
-            ) : Object.keys(assetAllocations).length === 0 && (
-              <div className="no-allocations">
-                No assets allocated. Use the dropdown above to add assets.
-              </div>
-            )}
-          </div>
+          <AssetMappings
+            assets={assets}
+            selectedAsset={selectedAsset}
+            assetMappings={assetMappings}
+            onAssetSelect={setSelectedAsset}
+            onAddAsset={handleAddAsset}
+            onAllocationChange={handleAllocationChange}
+            onRemoveAsset={handleRemoveAsset}
+          />
 
           <div className="form-actions">
             <button 
@@ -479,12 +417,30 @@ function EditGoal() {
             </div>
 
             <div className="details-grid">
-              {renderField('Initial Value', goalData.initial_goal_value, 
-                (v) => `$${parseFloat(v).toLocaleString()}`)}
-              {renderField('Projected Value', goalData.projected_value, 
-                (v) => `$${parseFloat(v).toLocaleString()}`)}
-              {renderField('Timeline', `${goalData.goal_creation_year} → ${goalData.target_year}`)}
-              {renderField('Inflation Rate', `${goalData.projected_inflation}%`)}
+              <div className="detail-item">
+                <h3>Initial Value</h3>
+                <div className="detail-value">
+                  ${parseFloat(goalData.initial_goal_value).toLocaleString()}
+                </div>
+              </div>
+              <div className="detail-item">
+                <h3>Projected Value</h3>
+                <div className="detail-value">
+                  ${parseFloat(goalData.projected_value).toLocaleString()}
+                </div>
+              </div>
+              <div className="detail-item">
+                <h3>Timeline</h3>
+                <div className="detail-value">
+                  {goalData.goal_creation_year} → {goalData.target_year}
+                </div>
+              </div>
+              <div className="detail-item">
+                <h3>Inflation Rate</h3>
+                <div className="detail-value">
+                  {goalData.projected_inflation}%
+                </div>
+              </div>
             </div>
 
             <div className="progress-section">
@@ -508,30 +464,14 @@ function EditGoal() {
 
             <div className="asset-allocations">
               <h3>Asset Allocations</h3>
-              {goalData.assets?.length > 0 ? (
-                <div className="allocations-grid">
-                  {goalData.assets.map(asset => (
-                    <div key={asset.id} className="allocation-card">
-                      <div className="allocation-header">
-                        <span className="asset-icon">{asset.icon}</span>
-                        <span className="asset-name">{asset.name}</span>
-                      </div>
-                      <div className="allocation-details">
-                        <div className="allocation-value">
-                          ${parseFloat(asset.allocated_amount).toLocaleString()}
-                        </div>
-                        <div className="allocation-percentage">
-                          {asset.allocation_percentage}% of asset
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="no-allocations">
-                  No assets are currently allocated to this goal
-                </div>
-              )}
+              <div className="allocations-list">
+                {assetMappings.map(mapping => (
+                  <div key={mapping.asset_id} className="allocation-item">
+                    <span className="asset-name">{mapping.asset_name}</span>
+                    <span className="allocation-value">{mapping.allocation_percentage}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

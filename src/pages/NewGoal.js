@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { goalService } from '../services/goalService';
+import { assetService } from '../services/assetService';
 import './NewGoal.css';
+import AssetMappings from '../components/Asset/AssetMappings';
 
 function NewGoal() {
   const navigate = useNavigate();
@@ -20,7 +22,23 @@ function NewGoal() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [assets, setAssets] = useState([]);
+  const [selectedAsset, setSelectedAsset] = useState('');
+  const [assetMappings, setAssetMappings] = useState([]);
+
   const presetIcons = ['🎯', '💰', '🏠', '🚗', '🎓', '✈️', '👶', '💍', '🏦', '📈'];
+
+  useEffect(() => {
+    const fetchAssets = async () => {
+      try {
+        const fetchedAssets = await assetService.fetchAssets();
+        setAssets(fetchedAssets);
+      } catch (error) {
+        setError('Failed to load assets');
+      }
+    };
+    fetchAssets();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,10 +83,52 @@ function NewGoal() {
     }
   };
 
+  const handleAddAsset = () => {
+    if (!selectedAsset) return;
+    
+    const asset = assets.find(a => a.id === parseInt(selectedAsset));
+    if (!asset) return;
+
+    setAssetMappings(prev => ([
+      ...prev,
+      { 
+        asset_id: asset.id, 
+        asset_name: asset.name,
+        allocation_percentage: 0 
+      }
+    ]));
+    setSelectedAsset('');
+  };
+
+  const handleAllocationChange = (assetId, value) => {
+    const percentage = parseFloat(value);
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) return;
+
+    setAssetMappings(prev => prev.map(mapping =>
+      mapping.asset_id === assetId
+        ? { ...mapping, allocation_percentage: percentage }
+        : mapping
+    ));
+  };
+
+  const handleRemoveAsset = (assetId) => {
+    setAssetMappings(prev => 
+      prev.filter(mapping => mapping.asset_id !== assetId)
+    );
+  };
+
   return (
     <div className="new-goal-page">
-      <h1>Create New Goal</h1>
-      
+      <div className="page-header">
+        <button 
+          className="back-button"
+          onClick={() => navigate('/')}
+        >
+          ← Back
+        </button>
+        <h1>Add New Goal</h1>
+      </div>
+
       {error && <div className="error-message">{error}</div>}
       
       <form onSubmit={handleSubmit} className="goal-form">
@@ -194,6 +254,16 @@ function NewGoal() {
             )}
           </div>
         </div>
+
+        <AssetMappings
+          assets={assets}
+          selectedAsset={selectedAsset}
+          assetMappings={assetMappings}
+          onAssetSelect={setSelectedAsset}
+          onAddAsset={handleAddAsset}
+          onAllocationChange={handleAllocationChange}
+          onRemoveAsset={handleRemoveAsset}
+        />
 
         <div className="form-actions">
           <button 
