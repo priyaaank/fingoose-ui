@@ -1,38 +1,41 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 import './Navbar.css';
 
 function Navbar() {
-  const location = useLocation();
+  const navigate = useNavigate();
 
-  const isActive = (path) => {
-    return location.pathname === path ? 'active' : '';
+  const handleSignOut = () => {
+    try {
+      authService.signOut();
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
     <nav className="navbar">
-      <div className="nav-brand">
-        <Link to="/">FinGoose</Link>
-      </div>
-      <div className="nav-links">
-        <Link to="/" className={isActive('/')}>
-          Dashboard
+      <div className="nav-content">
+        <Link to="/" className="nav-brand">
+          FinFox
         </Link>
-        <Link to="/new-goal" className={isActive('/new-goal')}>
-          Add Goal
-        </Link>
-        <Link to="/new-asset" className={isActive('/new-asset')}>
-          Add Asset
-        </Link>
-        <Link to="/new-liability" className={isActive('/new-liability')}>
-          Add Liability
-        </Link>
-        <Link to="/preferences" className={isActive('/preferences')}>
-          Preferences
-        </Link>
-        <Link to="/about" className={isActive('/about')}>
-          About
-        </Link>
+        
+        <div className="nav-links">
+          <Link to="/" className="nav-link">
+            Dashboard
+          </Link>
+          <Link to="/preferences" className="nav-link">
+            Preferences
+          </Link>
+          <button 
+            onClick={handleSignOut} 
+            className="nav-link sign-out-button"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </nav>
   );
