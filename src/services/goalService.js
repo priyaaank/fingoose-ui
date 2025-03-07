@@ -51,11 +51,18 @@ export const goalService = {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update goal');
+        const errorData = await response.json();
+        if (response.status === 404) {
+          throw new Error('Goal not found');
+        }
+        if (errorData.details) {
+          throw { response: { data: errorData } };
+        }
+        throw new Error(errorData.error || 'Failed to update goal');
       }
       
-      const result = await response.json();
-      return result.message;
+      const { message, goal } = await response.json();
+      return { message, goal: this.transformGoalFromApi(goal) };
     } catch (error) {
       console.error('Error updating goal:', error);
       throw error;
@@ -108,7 +115,15 @@ export const goalService = {
       initial_goal_value: apiGoal.initial_goal_value,
       projected_value: apiGoal.projected_value,
       created_at: new Date(apiGoal.created_at),
-      updated_at: new Date(apiGoal.updated_at)
+      updated_at: new Date(apiGoal.updated_at),
+      progress: apiGoal.progress || 35, // Temporary hardcoded value
+      assets: apiGoal.assets?.map(asset => ({
+        id: asset.id,
+        name: asset.name,
+        icon: asset.icon,
+        allocated_amount: asset.allocated_amount,
+        allocation_percentage: asset.allocation_percentage
+      })) || []
     };
   },
 
@@ -120,7 +135,8 @@ export const goalService = {
       initial_goal_value: parseFloat(uiGoal.initial_goal_value),
       target_year: parseInt(uiGoal.target_year),
       goal_creation_year: parseInt(uiGoal.goal_creation_year),
-      projected_inflation: parseFloat(uiGoal.projected_inflation)
+      projected_inflation: parseFloat(uiGoal.projected_inflation),
+      asset_allocations: uiGoal.asset_allocations
     };
   },
 

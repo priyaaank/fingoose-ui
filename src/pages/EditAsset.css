@@ -92,9 +92,9 @@
 }
 
 .allocation-input {
-  width: 70px;
+  width: 100px;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 0px solid #ddd;
   border-radius: 4px;
   text-align: right;
 }
