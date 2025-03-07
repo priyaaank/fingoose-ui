@@ -8,135 +8,105 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
-.delete-button {
+.back-button {
   padding: 0.5rem 1rem;
-  background-color: #dc3545;
-  color: white;
-  border: none;
+  background: none;
+  border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  color: #666;
 }
 
-.delete-button:hover {
-  background-color: #c82333;
+.back-button:hover {
+  background: #f5f5f5;
 }
 
-/* Inherit other styles from NewAsset.css */
-
-.goal-allocation-container {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-top: 0.5rem;
+.asset-form-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.goal-selector {
+.asset-form {
+  width: 100%;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-section {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.goal-select {
-  flex: 1;
+.form-section label {
+  color: #666;
+  font-weight: 500;
+}
+
+.form-section input,
+.form-section select,
+.form-section textarea {
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-.btn-add-goal {
-  padding: 0.75rem 1rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
+.form-section textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
-.btn-add-goal:hover {
-  background-color: #218838;
-}
-
-.selected-goals {
+.form-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.goal-allocation-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background-color: white;
+.cancel-button {
+  padding: 0.5rem 1.5rem;
+  background: none;
   border: 1px solid #ddd;
   border-radius: 4px;
-}
-
-.goal-title {
-  font-weight: 500;
-}
-
-.goal-allocation-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.allocation-input {
-  width: 100px;
-  padding: 0.5rem;
-  border: 0px solid #ddd;
-  border-radius: 4px;
-  text-align: right;
-}
-
-.percentage {
+  cursor: pointer;
   color: #666;
 }
 
-.btn-remove-goal {
-  padding: 0.25rem 0.5rem;
-  background-color: #dc3545;
+.cancel-button:hover {
+  background: #f5f5f5;
+}
+
+.save-button {
+  padding: 0.5rem 1.5rem;
+  background: #2196F3;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1.25rem;
-  line-height: 1;
-  transition: all 0.2s ease;
 }
 
-.btn-remove-goal:hover {
-  background-color: #c82333;
+.save-button:hover {
+  background: #1976D2;
 }
 
-.allocation-summary {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #ddd;
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.total-label {
-  font-weight: 500;
-}
-
-.total-value {
-  font-weight: 600;
-  color: #28a745;
-}
-
-.total-value.error {
+.field-error {
   color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 } 

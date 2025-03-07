@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { assetService } from '../services/assetService';
 import { goalService } from '../services/goalService';
 import './NewAsset.css';
+import GoalMappings from '../components/Goal/GoalMappings';
 
 function NewAsset() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function NewAsset() {
   });
   const [goals, setGoals] = useState([]);
   const [selectedGoal, setSelectedGoal] = useState('');
+  const [goalMappings, setGoalMappings] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,13 +53,14 @@ function NewAsset() {
     const goal = goals.find(g => g.id === parseInt(selectedGoal));
     if (!goal) return;
 
-    setFormData(prev => ({
+    setGoalMappings(prev => ([
       ...prev,
-      goalMappings: [
-        ...prev.goalMappings,
-        { goal_id: goal.id, goal_name: goal.name, allocation_percentage: 0 }
-      ]
-    }));
+      { 
+        goal_id: goal.id, 
+        goal_name: goal.name,
+        allocation_percentage: 0 
+      }
+    ]));
     setSelectedGoal('');
   };
 
@@ -65,21 +68,17 @@ function NewAsset() {
     const percentage = parseFloat(value);
     if (isNaN(percentage) || percentage < 0 || percentage > 100) return;
 
-    setFormData(prev => ({
-      ...prev,
-      goalMappings: prev.goalMappings.map(mapping =>
-        mapping.goal_id === goalId
-          ? { ...mapping, allocation_percentage: percentage }
-          : mapping
-      )
-    }));
+    setGoalMappings(prev => prev.map(mapping =>
+      mapping.goal_id === goalId
+        ? { ...mapping, allocation_percentage: percentage }
+        : mapping
+    ));
   };
 
   const handleRemoveGoal = (goalId) => {
-    setFormData(prev => ({
-      ...prev,
-      goalMappings: prev.goalMappings.filter(mapping => mapping.goal_id !== goalId)
-    }));
+    setGoalMappings(prev => 
+      prev.filter(mapping => mapping.goal_id !== goalId)
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -219,60 +218,15 @@ function NewAsset() {
           </div>
         </div>
 
-        <div className="goal-mappings-section">
-          <h2>Goal Allocations</h2>
-          
-          <div className="goal-selector">
-            <select
-              value={selectedGoal}
-              onChange={(e) => setSelectedGoal(e.target.value)}
-            >
-              <option value="">Select a goal</option>
-              {goals
-                .filter(goal => !formData.goalMappings.some(m => m.goal_id === goal.id))
-                .map(goal => (
-                  <option key={goal.id} value={goal.id}>
-                    {goal.name}
-                  </option>
-                ))
-              }
-            </select>
-            <button 
-              type="button" 
-              className="add-goal-button"
-              onClick={handleAddGoal}
-              disabled={!selectedGoal}
-            >
-              Add Goal
-            </button>
-          </div>
-
-          <div className="selected-goals">
-            {formData.goalMappings.map(mapping => (
-              <div key={mapping.goal_id} className="goal-allocation-row">
-                <span className="goal-name">{mapping.goal_name}</span>
-                <div className="allocation-input">
-                  <input
-                    type="number"
-                    value={mapping.allocation_percentage}
-                    onChange={(e) => handleAllocationChange(mapping.goal_id, e.target.value)}
-                    min="0"
-                    max="100"
-                    step="1"
-                  />
-                  <span className="percentage">%</span>
-                </div>
-                <button
-                  type="button"
-                  className="remove-goal-button"
-                  onClick={() => handleRemoveGoal(mapping.goal_id)}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        <GoalMappings
+          goals={goals}
+          selectedGoal={selectedGoal}
+          goalMappings={goalMappings}
+          onGoalSelect={setSelectedGoal}
+          onAddGoal={handleAddGoal}
+          onAllocationChange={handleAllocationChange}
+          onRemoveGoal={handleRemoveGoal}
+        />
 
         {error && <div className="error-message">{error}</div>}
 

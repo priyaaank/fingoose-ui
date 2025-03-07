@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { assetService } from '../services/assetService';
+import { goalService } from '../services/goalService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import GoalMappings from '../components/Goal/GoalMappings';
 import './EditAsset.css';
 
 function EditAsset() {
@@ -17,6 +19,10 @@ function EditAsset() {
     comments: '',
     goalMappings: []
   });
+  const [originalData, setOriginalData] = useState({});
+  const [goals, setGoals] = useState([]);
+  const [selectedGoal, setSelectedGoal] = useState('');
+  const [goalMappings, setGoalMappings] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -33,18 +39,32 @@ function EditAsset() {
   ];
 
   useEffect(() => {
-    const fetchAsset = async () => {
+    const fetchData = async () => {
       try {
-        const asset = await assetService.fetchAssetById(parseInt(id));
-        setAssetData(asset);
+        const [assetData, fetchedGoals] = await Promise.all([
+          assetService.fetchAssetById(parseInt(id)),
+          goalService.fetchGoals()
+        ]);
+        
+        setAssetData(assetData);
+        setOriginalData(assetData);
+        setGoals(fetchedGoals);
+        
+        // Initialize goal mappings from asset data
+        const mappings = assetData.goals?.map(goal => ({
+          goal_id: goal.id,
+          goal_name: goal.name,
+          allocation_percentage: goal.allocation_percentage
+        })) || [];
+        setGoalMappings(mappings);
+        
       } catch (error) {
-        setError(error.message || 'Failed to load asset');
+        setError('Failed to load data');
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchAsset();
+    fetchData();
   }, [id]);
 
   const handleChange = (e) => {
@@ -65,13 +85,50 @@ function EditAsset() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await assetService.updateAsset(id, assetData);
+      await assetService.updateAsset(id, {
+        ...assetData,
+        goalMappings
+      });
       navigate('/');
     } catch (error) {
       setError(error.message || 'Failed to update asset');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleAddGoal = () => {
+    if (!selectedGoal) return;
+    
+    const goal = goals.find(g => g.id === parseInt(selectedGoal));
+    if (!goal) return;
+
+    setGoalMappings(prev => ([
+      ...prev,
+      { 
+        goal_id: goal.id, 
+        goal_name: goal.name,
+        allocation_percentage: 0 
+      }
+    ]));
+    setSelectedGoal('');
+  };
+
+  const handleAllocationChange = (goalId, value) => {
+    const percentage = parseFloat(value);
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) return;
+
+    setGoalMappings(prev => prev.map(mapping =>
+      mapping.goal_id === goalId
+        ? { ...mapping, allocation_percentage: percentage }
+        : mapping
+    ));
+  };
+
+  const handleRemoveGoal = (goalId) => {
+    setGoalMappings(prev => 
+      prev.filter(mapping => mapping.goal_id !== goalId)
+    );
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -90,141 +147,153 @@ function EditAsset() {
         <h1>Edit Asset</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="asset-form">
-        <div className="form-row">
-          <div className="form-section">
-            <label htmlFor="type">Asset Type</label>
-            <select
-              id="type"
-              name="type"
-              value={assetData.type}
-              onChange={handleChange}
-              required
+      <div className="asset-form-container">
+        <form onSubmit={handleSubmit} className="asset-form">
+          <div className="form-row">
+            <div className="form-section">
+              <label htmlFor="type">Asset Type</label>
+              <select
+                id="type"
+                name="type"
+                value={assetData.type}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Type</option>
+                {assetTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+              {fieldErrors.type && (
+                <div className="field-error">{fieldErrors.type}</div>
+              )}
+            </div>
+
+            <div className="form-section">
+              <label htmlFor="name">Asset Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={assetData.name}
+                onChange={handleChange}
+                required
+              />
+              {fieldErrors.name && (
+                <div className="field-error">{fieldErrors.name}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-section">
+              <label htmlFor="value">Current Value ($)</label>
+              <input
+                type="number"
+                id="value"
+                name="value"
+                value={assetData.value}
+                onChange={handleChange}
+                required
+                min="0"
+                step="0.01"
+              />
+              {fieldErrors.value && (
+                <div className="field-error">{fieldErrors.value}</div>
+              )}
+            </div>
+
+            <div className="form-section">
+              <label htmlFor="projectedRoi">Projected ROI (%)</label>
+              <input
+                type="number"
+                id="projectedRoi"
+                name="projectedRoi"
+                value={assetData.projectedRoi}
+                onChange={handleChange}
+                required
+                step="0.1"
+              />
+              {fieldErrors.projectedRoi && (
+                <div className="field-error">{fieldErrors.projectedRoi}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-section">
+              <label htmlFor="maturityYear">Maturity Year</label>
+              <input
+                type="number"
+                id="maturityYear"
+                name="maturityYear"
+                value={assetData.maturityYear}
+                onChange={handleChange}
+                min={new Date().getFullYear()}
+              />
+              {fieldErrors.maturityYear && (
+                <div className="field-error">{fieldErrors.maturityYear}</div>
+              )}
+            </div>
+
+            <div className="form-section">
+              <label htmlFor="icon">Icon</label>
+              <input
+                type="text"
+                id="icon"
+                name="icon"
+                value={assetData.icon}
+                onChange={handleChange}
+                placeholder="Enter an emoji"
+              />
+              {fieldErrors.icon && (
+                <div className="field-error">{fieldErrors.icon}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-section">
+              <label htmlFor="comments">Additional Comments</label>
+              <textarea
+                id="comments"
+                name="comments"
+                value={assetData.comments}
+                onChange={handleChange}
+                rows="3"
+              />
+            </div>
+          </div>
+
+          <GoalMappings
+            goals={goals}
+            selectedGoal={selectedGoal}
+            goalMappings={goalMappings}
+            onGoalSelect={setSelectedGoal}
+            onAddGoal={handleAddGoal}
+            onAllocationChange={handleAllocationChange}
+            onRemoveGoal={handleRemoveGoal}
+          />
+
+          <div className="form-actions">
+            <button 
+              type="button" 
+              onClick={() => navigate('/')}
+              disabled={isSaving}
+              className="cancel-button"
             >
-              <option value="">Select Type</option>
-              {assetTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-            {fieldErrors.type && (
-              <div className="field-error">{fieldErrors.type}</div>
-            )}
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              disabled={isSaving}
+              className="save-button"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
-
-          <div className="form-section">
-            <label htmlFor="name">Asset Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={assetData.name}
-              onChange={handleChange}
-              required
-            />
-            {fieldErrors.name && (
-              <div className="field-error">{fieldErrors.name}</div>
-            )}
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-section">
-            <label htmlFor="value">Current Value ($)</label>
-            <input
-              type="number"
-              id="value"
-              name="value"
-              value={assetData.value}
-              onChange={handleChange}
-              required
-              min="0"
-              step="0.01"
-            />
-            {fieldErrors.value && (
-              <div className="field-error">{fieldErrors.value}</div>
-            )}
-          </div>
-
-          <div className="form-section">
-            <label htmlFor="projectedRoi">Projected ROI (%)</label>
-            <input
-              type="number"
-              id="projectedRoi"
-              name="projectedRoi"
-              value={assetData.projectedRoi}
-              onChange={handleChange}
-              required
-              step="0.1"
-            />
-            {fieldErrors.projectedRoi && (
-              <div className="field-error">{fieldErrors.projectedRoi}</div>
-            )}
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-section">
-            <label htmlFor="maturityYear">Maturity Year</label>
-            <input
-              type="number"
-              id="maturityYear"
-              name="maturityYear"
-              value={assetData.maturityYear}
-              onChange={handleChange}
-              min={new Date().getFullYear()}
-            />
-            {fieldErrors.maturityYear && (
-              <div className="field-error">{fieldErrors.maturityYear}</div>
-            )}
-          </div>
-
-          <div className="form-section">
-            <label htmlFor="icon">Icon</label>
-            <input
-              type="text"
-              id="icon"
-              name="icon"
-              value={assetData.icon}
-              onChange={handleChange}
-              placeholder="Enter an emoji"
-            />
-            {fieldErrors.icon && (
-              <div className="field-error">{fieldErrors.icon}</div>
-            )}
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-section">
-            <label htmlFor="comments">Additional Comments</label>
-            <textarea
-              id="comments"
-              name="comments"
-              value={assetData.comments}
-              onChange={handleChange}
-              rows="3"
-            />
-          </div>
-        </div>
-
-        <div className="form-actions">
-          <button 
-            type="button" 
-            onClick={() => navigate('/')}
-            disabled={isSaving}
-            className="cancel-button"
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit"
-            disabled={isSaving}
-            className="save-button"
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
