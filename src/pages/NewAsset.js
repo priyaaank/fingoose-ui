@@ -2,158 +2,194 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assetService } from '../services/assetService';
 import { goalService } from '../services/goalService';
-import GoalAllocation from '../components/Asset/GoalAllocation';
 import './NewAsset.css';
 
 function NewAsset() {
   const navigate = useNavigate();
-  const [goals, setGoals] = useState([]);
-  const [assetData, setAssetData] = useState({
-    icon: '📈',
-    type: 'Mutual Fund',
+  const [formData, setFormData] = useState({
+    icon: '',
     name: '',
+    type: '',
     value: '',
     projectedRoi: '',
-    maturityDate: '',
+    maturityYear: '',
     comments: '',
     goalMappings: []
   });
+  const [goals, setGoals] = useState([]);
+  const [selectedGoal, setSelectedGoal] = useState('');
   const [error, setError] = useState(null);
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const icons = ['📈', '📊', '🏢', '🏦', '💎', '💰', '🏭', '💳', '🏗️', '🚗'];
-  const assetTypes = [
-    'Mutual Fund',
-    'Fixed Deposit',
-    'Stocks',
-    'Real Estate',
-    'Gold',
-    'Cash',
-    'Other'
-  ];
+  const commonEmojis = ['💰', '🏦', '🏠', '📈', '💎', '🚗', '✨', '🏢', '🌟', '💵', '🏆', '📊'];
+  const assetTypes = ['Mutual Fund', 'Fixed Deposit', 'Stocks', 'Real Estate', 'Gold', 'Cash', 'Other'];
 
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const goalsData = await goalService.fetchGoals();
-        setGoals(goalsData);
+        const fetchedGoals = await goalService.fetchGoals();
+        setGoals(fetchedGoals);
       } catch (error) {
-        console.error('Error fetching goals:', error);
+        setError('Failed to load goals');
       }
     };
-    
     fetchGoals();
   }, []);
 
+  const handleEmojiSelect = (emoji) => {
+    setFormData(prev => ({ ...prev, icon: emoji }));
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setAssetData(prev => ({
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddGoal = () => {
+    if (!selectedGoal) return;
+    
+    const goal = goals.find(g => g.id === parseInt(selectedGoal));
+    if (!goal) return;
+
+    setFormData(prev => ({
       ...prev,
-      [name]: value
+      goalMappings: [
+        ...prev.goalMappings,
+        { goal_id: goal.id, goal_name: goal.name, allocation_percentage: 0 }
+      ]
     }));
-    // Clear field-specific error when user starts typing
-    if (fieldErrors[name]) {
-      setFieldErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
+    setSelectedGoal('');
+  };
+
+  const handleAllocationChange = (goalId, value) => {
+    const percentage = parseFloat(value);
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) return;
+
+    setFormData(prev => ({
+      ...prev,
+      goalMappings: prev.goalMappings.map(mapping =>
+        mapping.goal_id === goalId
+          ? { ...mapping, allocation_percentage: percentage }
+          : mapping
+      )
+    }));
+  };
+
+  const handleRemoveGoal = (goalId) => {
+    setFormData(prev => ({
+      ...prev,
+      goalMappings: prev.goalMappings.filter(mapping => mapping.goal_id !== goalId)
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setFieldErrors({});
-    setIsSubmitting(true);
-    
+    setIsLoading(true);
     try {
-      await assetService.createAsset(assetData);
+      await assetService.createAsset(formData);
       navigate('/');
     } catch (error) {
-      if (error.response?.status === 400 && error.response?.data?.details) {
-        setFieldErrors(error.response.data.details);
-      } else {
-        setError(error.message || 'Failed to create asset. Please try again.');
-      }
+      setError(error.message || 'Failed to create asset');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="new-asset-page">
       <div className="page-header">
+        <button 
+          className="back-button"
+          onClick={() => navigate('/')}
+        >
+          ← Back
+        </button>
         <h1>Add New Asset</h1>
       </div>
-      
-      {error && <div className="error-message">{error}</div>}
-      
+
       <form onSubmit={handleSubmit} className="asset-form">
-        <div className="form-section">
-          <label>Choose Icon</label>
-          <div className="icon-selector">
-            {icons.map(icon => (
-              <button
-                key={icon}
-                type="button"
-                className={`icon-option ${assetData.icon === icon ? 'selected' : ''}`}
-                onClick={() => setAssetData(prev => ({ ...prev, icon }))}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-section">
-          <label htmlFor="type">Asset Type</label>
-          <select
-            id="type"
-            name="type"
-            value={assetData.type}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select asset type</option>
-            {assetTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-          {fieldErrors.type && <div className="field-error">{fieldErrors.type}</div>}
-        </div>
-
-        <div className="form-section">
-          <label htmlFor="name">Asset Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={assetData.name}
-            onChange={handleChange}
-            required
-            placeholder="e.g., Vanguard 500 Index Fund"
-          />
-          {fieldErrors.name && <div className="field-error">{fieldErrors.name}</div>}
+        <div className="emoji-selector">
+          {commonEmojis.map(emoji => (
+            <button
+              key={emoji}
+              type="button"
+              className={`emoji-button ${formData.icon === emoji ? 'selected' : ''}`}
+              onClick={() => handleEmojiSelect(emoji)}
+            >
+              {emoji}
+            </button>
+          ))}
         </div>
 
         <div className="form-row">
           <div className="form-section">
-            <label htmlFor="value">Current Value ($)</label>
+            <label htmlFor="icon">Icon</label>
+            <input
+              type="text"
+              id="icon"
+              name="icon"
+              value={formData.icon}
+              onChange={handleChange}
+              placeholder="Enter or select an emoji"
+            />
+          </div>
+
+          <div className="form-section">
+            <label htmlFor="name">Investment Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-section">
+            <label htmlFor="type">Asset Type</label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select type</option>
+              {assetTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-section">
+            <label htmlFor="maturityYear">Maturity Year (Optional)</label>
+            <input
+              type="number"
+              id="maturityYear"
+              name="maturityYear"
+              value={formData.maturityYear}
+              onChange={handleChange}
+              min={new Date().getFullYear()}
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-section">
+            <label htmlFor="value">Current Value</label>
             <input
               type="number"
               id="value"
               name="value"
-              value={assetData.value}
+              value={formData.value}
               onChange={handleChange}
               required
               min="0"
               step="0.01"
-              placeholder="0.00"
             />
-            {fieldErrors.current_value && (
-              <div className="field-error">{fieldErrors.current_value}</div>
-            )}
           </div>
 
           <div className="form-section">
@@ -162,73 +198,99 @@ function NewAsset() {
               type="number"
               id="projectedRoi"
               name="projectedRoi"
-              value={assetData.projectedRoi}
+              value={formData.projectedRoi}
               onChange={handleChange}
               required
               step="0.1"
-              placeholder="0.0"
             />
-            {fieldErrors.projected_roi && (
-              <div className="field-error">{fieldErrors.projected_roi}</div>
-            )}
           </div>
         </div>
 
-        <div className="form-section">
-          <label htmlFor="maturityDate">Maturity Date (if applicable)</label>
-          <input
-            type="month"
-            id="maturityDate"
-            name="maturityDate"
-            value={assetData.maturityDate}
-            onChange={handleChange}
-            min={new Date().toISOString().substring(0, 7)}
-            pattern="\d{4}-\d{2}"
-          />
-          {fieldErrors.maturity_date && (
-            <div className="field-error">{fieldErrors.maturity_date}</div>
-          )}
+        <div className="form-row">
+          <div className="form-section">
+            <label htmlFor="comments">Additional Comments</label>
+            <textarea
+              id="comments"
+              name="comments"
+              value={formData.comments}
+              onChange={handleChange}
+              rows="3"
+            />
+          </div>
         </div>
 
-        <div className="form-section">
-          <label htmlFor="comments">Additional Comments</label>
-          <textarea
-            id="comments"
-            name="comments"
-            value={assetData.comments}
-            onChange={handleChange}
-            rows="3"
-            placeholder="Any additional notes about this asset..."
-          />
-          {fieldErrors.additional_comments && (
-            <div className="field-error">{fieldErrors.additional_comments}</div>
-          )}
+        <div className="goal-mappings-section">
+          <h2>Goal Allocations</h2>
+          
+          <div className="goal-selector">
+            <select
+              value={selectedGoal}
+              onChange={(e) => setSelectedGoal(e.target.value)}
+            >
+              <option value="">Select a goal</option>
+              {goals
+                .filter(goal => !formData.goalMappings.some(m => m.goal_id === goal.id))
+                .map(goal => (
+                  <option key={goal.id} value={goal.id}>
+                    {goal.name}
+                  </option>
+                ))
+              }
+            </select>
+            <button 
+              type="button" 
+              className="add-goal-button"
+              onClick={handleAddGoal}
+              disabled={!selectedGoal}
+            >
+              Add Goal
+            </button>
+          </div>
+
+          <div className="selected-goals">
+            {formData.goalMappings.map(mapping => (
+              <div key={mapping.goal_id} className="goal-allocation-row">
+                <span className="goal-name">{mapping.goal_name}</span>
+                <div className="allocation-input">
+                  <input
+                    type="number"
+                    value={mapping.allocation_percentage}
+                    onChange={(e) => handleAllocationChange(mapping.goal_id, e.target.value)}
+                    min="0"
+                    max="100"
+                    step="1"
+                  />
+                  <span className="percentage">%</span>
+                </div>
+                <button
+                  type="button"
+                  className="remove-goal-button"
+                  onClick={() => handleRemoveGoal(mapping.goal_id)}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <GoalAllocation
-          goals={goals}
-          goalMappings={assetData.goalMappings}
-          onChange={(newMappings) => setAssetData(prev => ({
-            ...prev,
-            goalMappings: newMappings
-          }))}
-        />
+        {error && <div className="error-message">{error}</div>}
 
         <div className="form-actions">
           <button 
             type="button" 
-            className="btn-cancel" 
+            className="cancel-button"
             onClick={() => navigate('/')}
-            disabled={isSubmitting}
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button 
-            type="submit" 
-            className="btn-save"
-            disabled={isSubmitting}
+            type="submit"
+            className="save-button"
+            disabled={isLoading}
           >
-            {isSubmitting ? 'Adding...' : 'Add Asset'}
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>
