@@ -17,7 +17,7 @@ function InvestmentTable({ investments }) {
   return (
     <div className="investment-table">
       <div className="table-header">
-        <div>Investment Type</div>
+        <div>Asset Type</div>
         <div>Investment Name</div>
         <div>Current Value</div>
         <div>Projected ROI</div>
@@ -29,7 +29,7 @@ function InvestmentTable({ investments }) {
         <div key={investment.id} className="table-row">
           <div className="investment-type">
             <span className="investment-icon">{investment.icon}</span>
-            {investment.type}
+            <span className="investment-type-text">{investment.type}</span>
           </div>
           <div>{investment.name}</div>
           <div className="value-column">

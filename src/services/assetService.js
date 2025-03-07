@@ -10,6 +10,7 @@ class AssetService {
       body: JSON.stringify({
         name: assetData.name,
         icon: assetData.icon,
+        asset_type: assetData.type,
         current_value: parseFloat(assetData.value),
         projected_roi: parseFloat(assetData.projectedRoi),
         maturity_year: parseInt(assetData.maturityYear),
@@ -56,6 +57,7 @@ class AssetService {
       body: JSON.stringify({
         name: assetData.name,
         icon: assetData.icon,
+        asset_type: assetData.type,
         current_value: parseFloat(assetData.value),
         projected_roi: parseFloat(assetData.projectedRoi),
         maturity_year: parseInt(assetData.maturityYear),
@@ -87,6 +89,7 @@ class AssetService {
       id: asset.id,
       name: asset.name,
       icon: asset.icon,
+      type: asset.asset_type,
       value: asset.current_value,
       projectedRoi: asset.projected_roi,
       maturityYear: asset.maturity_year,

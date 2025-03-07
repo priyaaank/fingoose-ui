@@ -12,7 +12,7 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to="/">FinFox</Link>
+        <Link to="/">FinGoose</Link>
       </div>
       <div className="nav-links">
         <Link to="/" className={isActive('/')}>

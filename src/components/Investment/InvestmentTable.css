@@ -1,0 +1,14 @@
+.investment-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.investment-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.investment-type-text {
+  color: #333;
+} 

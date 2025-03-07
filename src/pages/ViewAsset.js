@@ -97,6 +97,17 @@ function ViewAsset() {
     setIsEditMode(false);
   };
 
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this asset?')) {
+      try {
+        await assetService.deleteAsset(id);
+        navigate('/');
+      } catch (error) {
+        setError(error.message || 'Failed to delete asset');
+      }
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -114,18 +125,24 @@ function ViewAsset() {
         <button 
           className="back-button"
           onClick={() => navigate('/')}
-          disabled={isSaving}
         >
           ← Back
         </button>
-        {!isEditMode && (
+        <h1>Asset Details</h1>
+        <div className="header-actions">
           <button 
             className="edit-button"
             onClick={() => setIsEditMode(true)}
           >
             Edit
           </button>
-        )}
+          <button 
+            className="delete-button"
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
+        </div>
       </div>
 
       {isEditMode ? (
@@ -260,37 +277,35 @@ function ViewAsset() {
       ) : (
         <div className="asset-content">
           <div className="asset-header">
-            <span className="asset-icon">{assetData.icon}</span>
-            <h1>{assetData.name}</h1>
+            <div className="asset-title">
+              <span className="asset-icon">{assetData.icon}</span>
+              <h2>{assetData.name}</h2>
+            </div>
           </div>
 
-          <div className="metrics-grid">
-            <div className="metric-item">
-              <h3>INITIAL VALUE</h3>
-              <div className="metric-value">
+          <div className="asset-details">
+            <div className="detail-row">
+              <span className="detail-label">Asset Type:</span>
+              <span className="detail-value">{assetData.type}</span>
+            </div>
+
+            <div className="detail-row">
+              <span className="detail-label">Current Value:</span>
+              <span className="detail-value">
                 {userProfileService.formatCurrency(assetData.value)}
-              </div>
+              </span>
             </div>
 
-            <div className="metric-item">
-              <h3>PROJECTED VALUE</h3>
-              <div className="metric-value">
-                {userProfileService.formatCurrency(
-                  assetData.value * (1 + assetData.projectedRoi / 100)
-                )}
+            {assetData.maturityYear && (
+              <div className="detail-row">
+                <span className="detail-label">Maturity Year:</span>
+                <span className="detail-value">{assetData.maturityYear}</span>
               </div>
-            </div>
+            )}
 
-            <div className="metric-item">
-              <h3>TIMELINE</h3>
-              <div className="metric-value">
-                {new Date().getFullYear()} → {assetData.maturityYear}
-              </div>
-            </div>
-
-            <div className="metric-item">
-              <h3>PROJECTED ROI</h3>
-              <div className="metric-value">{assetData.projectedRoi}%</div>
+            <div className="detail-row">
+              <span className="detail-label">Projected ROI:</span>
+              <span className="detail-value">{assetData.projectedRoi}%</span>
             </div>
           </div>
 
