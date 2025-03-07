@@ -1,4 +1,4 @@
-.edit-asset-page {
+.asset-form-page {
   padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
@@ -8,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .back-button {
@@ -25,14 +25,15 @@
 }
 
 .asset-form-container {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
 }
 
 .asset-form {
   width: 100%;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .form-row {
@@ -51,6 +52,7 @@
 .form-section label {
   color: #666;
   font-weight: 500;
+  margin-bottom: 0.25rem;
 }
 
 .form-section input,
@@ -58,8 +60,9 @@
 .form-section textarea {
   padding: 0.75rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
+  background: white;
 }
 
 .form-section textarea {
@@ -72,15 +75,19 @@
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
 .cancel-button {
-  padding: 0.5rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   background: none;
   border: 1px solid #ddd;
   border-radius: 4px;
   cursor: pointer;
   color: #666;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 .cancel-button:hover {
@@ -88,16 +95,18 @@
 }
 
 .save-button {
-  padding: 0.5rem 1.5rem;
-  background: #2196F3;
+  padding: 0.75rem 1.5rem;
+  background: #ff5722;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 .save-button:hover {
-  background: #1976D2;
+  background: #f4511e;
 }
 
 button:disabled {
@@ -105,8 +114,47 @@ button:disabled {
   cursor: not-allowed;
 }
 
-.field-error {
+.error-message {
   color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.icon-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.icon-button {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.icon-button:hover {
+  background: #f5f5f5;
+  border-color: #2196F3;
+}
+
+.icon-button.selected {
+  background: #e3f2fd;
+  border-color: #2196F3;
+}
+
+.form-row.full-width {
+  grid-template-columns: 1fr;
 } 

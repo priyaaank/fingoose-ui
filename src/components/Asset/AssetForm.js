@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { assetService } from '../services/assetService';
-import { goalService } from '../services/goalService';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import GoalMappings from '../components/Goal/GoalMappings';
-import './EditAsset.css';
+import { assetService } from '../../services/assetService';
+import { goalService } from '../../services/goalService';
+import LoadingSpinner from '../common/LoadingSpinner';
+import GoalMappings from '../Goal/GoalMappings';
+import './AssetForm.css';
 
-function EditAsset() {
+function AssetForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const isEditMode = Boolean(id);
+  
   const [assetData, setAssetData] = useState({
     name: '',
     icon: '',
@@ -16,17 +18,15 @@ function EditAsset() {
     value: '',
     projectedRoi: '',
     maturityYear: '',
-    comments: '',
-    goalMappings: []
+    comments: ''
   });
-  const [originalData, setOriginalData] = useState({});
+  
   const [goals, setGoals] = useState([]);
   const [selectedGoal, setSelectedGoal] = useState('');
   const [goalMappings, setGoalMappings] = useState([]);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({});
 
   const assetTypes = [
     'Mutual Fund',
@@ -38,34 +38,37 @@ function EditAsset() {
     'Other'
   ];
 
+  const presetIcons = ['💰', '🏠', '🏘️', '📈', '💎', '🚗', '✈️', '🏢', '🏆', '💵', '🏆', '📊'];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [assetData, fetchedGoals] = await Promise.all([
-          assetService.fetchAssetById(parseInt(id)),
+          isEditMode ? assetService.fetchAssetById(parseInt(id)) : null,
           goalService.fetchGoals()
         ]);
         
-        setAssetData(assetData);
-        setOriginalData(assetData);
+        if (isEditMode && assetData) {
+          setAssetData(assetData);
+          // Initialize goal mappings from asset data
+          const mappings = assetData.goals?.map(goal => ({
+            goal_id: goal.id,
+            goal_name: goal.name,
+            allocation_percentage: goal.allocation_percentage
+          })) || [];
+          setGoalMappings(mappings);
+        }
+        
         setGoals(fetchedGoals);
-        
-        // Initialize goal mappings from asset data
-        const mappings = assetData.goals?.map(goal => ({
-          goal_id: goal.id,
-          goal_name: goal.name,
-          allocation_percentage: goal.allocation_percentage
-        })) || [];
-        setGoalMappings(mappings);
-        
       } catch (error) {
         setError('Failed to load data');
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchData();
-  }, [id]);
+  }, [id, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,25 +76,27 @@ function EditAsset() {
       ...prev,
       [name]: value
     }));
-    if (fieldErrors[name]) {
-      setFieldErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await assetService.updateAsset(id, {
-        ...assetData,
-        goalMappings
-      });
-      navigate('/');
+      if (isEditMode) {
+        await assetService.updateAsset(id, {
+          ...assetData,
+          goalMappings
+        });
+        navigate(`/view-asset/${id}`);
+      } else {
+        const newAsset = await assetService.createAsset({
+          ...assetData,
+          goalMappings
+        });
+        navigate(`/view-asset/${newAsset.id}`);
+      }
     } catch (error) {
-      setError(error.message || 'Failed to update asset');
+      setError(isEditMode ? 'Failed to update asset' : 'Failed to create asset');
     } finally {
       setIsSaving(false);
     }
@@ -132,10 +137,9 @@ function EditAsset() {
   };
 
   if (isLoading) return <LoadingSpinner />;
-  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div className="edit-asset-page">
+    <div className="asset-form-page">
       <div className="page-header">
         <button 
           className="back-button"
@@ -144,11 +148,52 @@ function EditAsset() {
         >
           ← Back
         </button>
-        <h1>Edit Asset</h1>
+        <h1>{isEditMode ? 'Edit Asset' : 'New Asset'}</h1>
       </div>
+
+      {error && <div className="error-message">{error}</div>}
 
       <div className="asset-form-container">
         <form onSubmit={handleSubmit} className="asset-form">
+          <div className="icon-selector">
+            {presetIcons.map(icon => (
+              <button
+                key={icon}
+                type="button"
+                className={`icon-button ${assetData.icon === icon ? 'selected' : ''}`}
+                onClick={() => handleChange({ target: { name: 'icon', value: icon } })}
+              >
+                {icon}
+              </button>
+            ))}
+          </div>
+
+          <div className="form-row">
+            <div className="form-section">
+              <label htmlFor="icon">Icon</label>
+              <input
+                type="text"
+                id="icon"
+                name="icon"
+                value={assetData.icon}
+                onChange={handleChange}
+                placeholder="Enter or select an emoji"
+              />
+            </div>
+
+            <div className="form-section">
+              <label htmlFor="name">Investment Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={assetData.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
           <div className="form-row">
             <div className="form-section">
               <label htmlFor="type">Asset Type</label>
@@ -159,35 +204,29 @@ function EditAsset() {
                 onChange={handleChange}
                 required
               >
-                <option value="">Select Type</option>
+                <option value="">Select type</option>
                 {assetTypes.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
-              {fieldErrors.type && (
-                <div className="field-error">{fieldErrors.type}</div>
-              )}
             </div>
 
             <div className="form-section">
-              <label htmlFor="name">Asset Name</label>
+              <label htmlFor="maturityYear">Maturity Year (Optional)</label>
               <input
-                type="text"
-                id="name"
-                name="name"
-                value={assetData.name}
+                type="number"
+                id="maturityYear"
+                name="maturityYear"
+                value={assetData.maturityYear}
                 onChange={handleChange}
-                required
+                min={new Date().getFullYear()}
               />
-              {fieldErrors.name && (
-                <div className="field-error">{fieldErrors.name}</div>
-              )}
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-section">
-              <label htmlFor="value">Current Value ($)</label>
+              <label htmlFor="value">Current Value</label>
               <input
                 type="number"
                 id="value"
@@ -198,9 +237,6 @@ function EditAsset() {
                 min="0"
                 step="0.01"
               />
-              {fieldErrors.value && (
-                <div className="field-error">{fieldErrors.value}</div>
-              )}
             </div>
 
             <div className="form-section">
@@ -214,45 +250,10 @@ function EditAsset() {
                 required
                 step="0.1"
               />
-              {fieldErrors.projectedRoi && (
-                <div className="field-error">{fieldErrors.projectedRoi}</div>
-              )}
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-section">
-              <label htmlFor="maturityYear">Maturity Year</label>
-              <input
-                type="number"
-                id="maturityYear"
-                name="maturityYear"
-                value={assetData.maturityYear}
-                onChange={handleChange}
-                min={new Date().getFullYear()}
-              />
-              {fieldErrors.maturityYear && (
-                <div className="field-error">{fieldErrors.maturityYear}</div>
-              )}
-            </div>
-
-            <div className="form-section">
-              <label htmlFor="icon">Icon</label>
-              <input
-                type="text"
-                id="icon"
-                name="icon"
-                value={assetData.icon}
-                onChange={handleChange}
-                placeholder="Enter an emoji"
-              />
-              {fieldErrors.icon && (
-                <div className="field-error">{fieldErrors.icon}</div>
-              )}
-            </div>
-          </div>
-
-          <div className="form-row">
+          <div className="form-row full-width">
             <div className="form-section">
               <label htmlFor="comments">Additional Comments</label>
               <textarea
@@ -289,7 +290,7 @@ function EditAsset() {
               disabled={isSaving}
               className="save-button"
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? (isEditMode ? 'Saving...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create Asset')}
             </button>
           </div>
         </form>
@@ -298,4 +299,4 @@ function EditAsset() {
   );
 }
 
-export default EditAsset; 
+export default AssetForm; 

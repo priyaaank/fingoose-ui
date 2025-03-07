@@ -6,12 +6,12 @@ import About from './pages/About';
 import NewGoal from './pages/NewGoal';
 import NewAsset from './pages/NewAsset';
 import NewLiability from './pages/NewLiability';
-import EditAsset from './pages/EditAsset';
 import EditGoal from './pages/EditGoal';
 import EditLiability from './pages/EditLiability';
 import UserPreferences from './pages/UserPreferences';
 import Auth from './pages/Auth';
 import ViewAsset from './pages/ViewAsset';
+import AssetForm from './components/Asset/AssetForm';
 import './App.css';
 import './styles/Dashboard.css';
 
@@ -28,9 +28,9 @@ function AppContent() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/about" element={<About />} />
           <Route path="/new-goal" element={<NewGoal />} />
-          <Route path="/new-asset" element={<NewAsset />} />
+          <Route path="/new-asset" element={<AssetForm />} />
           <Route path="/new-liability" element={<NewLiability />} />
-          <Route path="/edit-asset/:id" element={<EditAsset />} />
+          <Route path="/edit-asset/:id" element={<AssetForm />} />
           <Route path="/edit-liability/:id" element={<EditLiability />} />
           <Route path="/edit-goal/:id" element={<EditGoal />} />
           <Route path="/preferences" element={<UserPreferences />} />
