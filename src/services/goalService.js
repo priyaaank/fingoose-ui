@@ -8,7 +8,10 @@ export const goalService = {
         throw new Error('Failed to fetch goals');
       }
       const goals = await response.json();
-      return goals.map(goal => this.transformGoalFromApi(goal));
+      console.log('Raw API response:', goals); // Debug log
+      const transformedGoals = goals.map(goal => this.transformGoalFromApi(goal));
+      console.log('Transformed goals:', transformedGoals); // Debug log
+      return transformedGoals;
     } catch (error) {
       console.error('Error fetching goals:', error);
       throw error;
@@ -94,28 +97,30 @@ export const goalService = {
 
   // Transform API response to match our UI model
   transformGoalFromApi(apiGoal) {
+    console.log('Transforming goal:', apiGoal); // Debug log
     return {
       id: apiGoal.id,
-      title: apiGoal.name,
-      icon: this.getIconForGoalType(apiGoal.type),
-      target: apiGoal.target_amount,
-      currentValue: apiGoal.current_value,
-      projectedDate: apiGoal.target_date,
-      targetYear: new Date(apiGoal.target_date).getFullYear().toString(),
-      inflation: apiGoal.expected_inflation,
-      progress: Math.round((apiGoal.current_value / apiGoal.target_amount) * 100)
+      name: apiGoal.name,
+      icon: apiGoal.icon,
+      goal_creation_year: apiGoal.goal_creation_year,
+      target_year: apiGoal.target_year,
+      projected_inflation: apiGoal.projected_inflation,
+      initial_goal_value: apiGoal.initial_goal_value,
+      projected_value: apiGoal.projected_value,
+      created_at: new Date(apiGoal.created_at),
+      updated_at: new Date(apiGoal.updated_at)
     };
   },
 
   // Transform UI model to API format
   transformGoalToApi(uiGoal) {
     return {
-      type: this.getGoalTypeFromIcon(uiGoal.icon) || 'Default',
-      name: uiGoal.title,
-      target_amount: parseFloat(uiGoal.target),
-      current_value: parseFloat(uiGoal.currentValue),
-      target_date: uiGoal.projectedDate,
-      expected_inflation: parseFloat(uiGoal.inflation)
+      name: uiGoal.name,
+      icon: uiGoal.icon,
+      initial_goal_value: parseFloat(uiGoal.initial_goal_value),
+      target_year: parseInt(uiGoal.target_year),
+      goal_creation_year: parseInt(uiGoal.goal_creation_year),
+      projected_inflation: parseFloat(uiGoal.projected_inflation)
     };
   },
 

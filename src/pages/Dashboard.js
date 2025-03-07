@@ -27,6 +27,7 @@ function Dashboard() {
           liabilityService.fetchLiabilities()
         ]);
         
+        console.log('Fetched goals:', goalsData);
         setGoals(goalsData);
         setAssets(assetsData);
         setLiabilities(liabilitiesData);
@@ -95,9 +96,15 @@ function Dashboard() {
           </button>
         </div>
         <div className="goals-grid">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} {...goal} />
-          ))}
+          {goals && goals.length > 0 ? (
+            goals.map((goal) => (
+              <GoalCard key={goal.id} goal={goal} />
+            ))
+          ) : (
+            <div className="empty-state">
+              <p>No goals found. Start by adding your first goal!</p>
+            </div>
+          )}
         </div>
 
         <div className="section-header">
