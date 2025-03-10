@@ -65,14 +65,34 @@
   margin-left: 0.5rem;
 }
 
+.form-section.icon-section {
+  display: flex;
+  gap: 1rem;
+}
+
+.icon-selector-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .icon-selector {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-bottom: 1rem;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 8px;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .icon-button {
@@ -102,7 +122,8 @@
 }
 
 .selected-icon-display {
-  margin-top: 1rem;
+  width: 80px;
+  margin-top: 24px;
 }
 
 .selected-icon-display label {
@@ -113,14 +134,32 @@
 }
 
 .selected-icon {
-  padding: 0.75rem;
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 1.25rem;
-  min-height: 48px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: white;
+  border: 1px solid #010101;
+  border-radius: 8px;
+  cursor: text;
+  margin-left: 1rem;
+}
+
+.selected-icon input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 1.5rem;
+  padding: 0;
+}
+
+.selected-icon input:focus {
+  outline: none;
+  background: #fff3f0;
 }
 
 .error-message {

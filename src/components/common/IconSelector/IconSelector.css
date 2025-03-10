@@ -1,0 +1,79 @@
+.icon-selector-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.icon-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.icon-button {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.icon-button:hover {
+  background: #f5f5f5;
+  border-color: #ff5722;
+}
+
+.icon-button.selected {
+  background: #fff3f0;
+  border-color: #ff5722;
+  color: #ff5722;
+}
+
+.selected-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: white;
+  border: 1px solid #010101;
+  border-radius: 8px;
+  cursor: text;
+  margin-left: 1rem;
+}
+
+.selected-icon input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 1.5rem;
+  padding: 0;
+}
+
+.selected-icon input:focus {
+  outline: none;
+  background: #fff3f0;
+} 

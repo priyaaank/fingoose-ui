@@ -4,6 +4,7 @@ import { assetService } from '../../../../services/assetService';
 import { goalService } from '../../../../services/goalService';
 import LoadingSpinner from '../../../common/LoadingSpinner';
 import GoalMappings from '../../Goals/GoalMappings/GoalMappings';
+import IconSelector from '../../../common/IconSelector/IconSelector';
 import './AssetForm.css';
 
 function AssetForm() {
@@ -168,26 +169,12 @@ function AssetForm() {
       <form className="asset-form" onSubmit={handleSubmit}>
         {error && <div className="error-message">{error}</div>}
 
-        <div className="form-section">
-          <label>Icon</label>
-          <div className="icon-selector">
-            {presetIcons.map(icon => (
-              <button
-                key={icon}
-                type="button"
-                className={`icon-button ${assetData.icon === icon ? 'selected' : ''}`}
-                onClick={() => handleIconSelect(icon)}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
-          <div className="selected-icon-display">
-            <label>Selected Icon</label>
-            <div className="selected-icon">
-              {assetData.icon || 'No icon selected'}
-            </div>
-          </div>
+        <div className="form-section icon-section">
+          <IconSelector
+            selectedIcon={assetData.icon}
+            onIconSelect={handleIconSelect}
+            onIconChange={(value) => handleChange({ target: { name: 'icon', value }})}
+          />
         </div>
 
         <div className="form-row">
