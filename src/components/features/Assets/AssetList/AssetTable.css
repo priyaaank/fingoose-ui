@@ -1,0 +1,52 @@
+.investment-table {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 1rem;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.investment-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.investment-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.investment-type-text {
+  color: #333;
+}
+
+.details-btn {
+  padding: 0.25rem 0.75rem;
+  background: transparent;
+  border: 1px solid #ff5722;
+  color: #ff5722;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.details-btn:hover {
+  background: rgba(255, 87, 34, 0.1);
+} 

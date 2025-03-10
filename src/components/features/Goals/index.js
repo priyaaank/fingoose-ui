@@ -1,0 +1,1 @@
+export { default as GoalMappings } from './GoalMappings/GoalMappings'; 

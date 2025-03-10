@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AssetTable } from '../components/features/Assets';
 import GoalSummary from '../components/GoalForm/GoalSummary';
 import InvestmentTable from '../components/Investment/InvestmentTable';
 import LiabilitiesTable from '../components/Liabilities/LiabilitiesTable';
@@ -8,6 +9,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import { goalService } from '../services/goalService';
 import { assetService } from '../services/assetService';
 import { liabilityService } from '../services/liabilityService';
+import '../components/common/styles/buttons.css';
 
 function Dashboard() {
   const [goals, setGoals] = useState([]);

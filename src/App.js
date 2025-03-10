@@ -4,14 +4,12 @@ import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import NewGoal from './pages/NewGoal';
-import NewAsset from './pages/NewAsset';
 import NewLiability from './pages/NewLiability';
 import EditGoal from './pages/EditGoal';
 import EditLiability from './pages/EditLiability';
 import UserPreferences from './pages/UserPreferences';
 import Auth from './pages/Auth';
-import ViewAsset from './pages/ViewAsset';
-import AssetForm from './components/Asset/AssetForm';
+import { AssetForm, AssetView } from './components/features/Assets';
 import './App.css';
 import './styles/Dashboard.css';
 
@@ -35,7 +33,7 @@ function AppContent() {
           <Route path="/edit-goal/:id" element={<EditGoal />} />
           <Route path="/preferences" element={<UserPreferences />} />
           <Route path="/liabilities/:id/edit" element={<EditLiability />} />
-          <Route path="/view-asset/:id" element={<ViewAsset />} />
+          <Route path="/view-asset/:id" element={<AssetView />} />
         </Routes>
       </div>
     </div>

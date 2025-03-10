@@ -1,0 +1,43 @@
+.add-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ff5722;
+  color: white;
+  border: none;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.add-button:hover {
+  background: #f4511e;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 87, 34, 0.2);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin: 3rem 0 1.5rem;
+}
+
+.section-header:first-of-type {
+  margin-top: 2rem;
+}
+
+.section-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Add spacing after summary grid */
+.summary-grid {
+  margin-bottom: 2rem;
+} 
