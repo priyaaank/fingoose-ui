@@ -31,6 +31,17 @@ function AssetView() {
     navigate(`/edit-asset/${id}`);
   };
 
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this asset?')) {
+      try {
+        await assetService.deleteAsset(parseInt(id));
+        navigate('/');
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+  };
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -53,76 +64,84 @@ function AssetView() {
           <button className="edit-button" onClick={handleEdit}>
             Edit Asset
           </button>
+          <button className="delete-button" onClick={handleDelete}>
+            Delete Asset
+          </button>
         </div>
       </div>
 
-      <div className="asset-info">
-        <div className="info-card">
-          <div className="icon">{assetData.icon}</div>
-          <h3>Asset Type</h3>
-          <div className="value">{assetData.type}</div>
+      <div className="asset-content">
+        <div className="asset-title-section">
+          <div className="asset-icon">{assetData.icon}</div>
+          <h1 className="asset-title">{assetData.name}</h1>
         </div>
-        <div className="info-card">
-          <h3>Current Value</h3>
-          <div className="value">
-            {userProfileService.formatCurrency(assetData.value)}
-          </div>
-        </div>
-        <div className="info-card">
-          <h3>Projected ROI</h3>
-          <div className="value">{assetData.projectedRoi}%</div>
-        </div>
-      </div>
 
-      <div className="asset-details">
-        <div className="detail-row">
-          <div className="detail-label">Name</div>
-          <div className="detail-value">{assetData.name}</div>
-        </div>
-        <div className="detail-row">
-          <div className="detail-label">Maturity Year</div>
-          <div className="detail-value">
-            {assetData.maturityYear || 'Not specified'}
+        <div className="metrics-grid">
+          <div className="metric-item">
+            <h2>Asset Type</h2>
+            <div className="metric-value">
+              {assetData.type}
+            </div>
           </div>
-        </div>
-        <div className="detail-row">
-          <div className="detail-label">Comments</div>
-          <div className="detail-value">
-            {assetData.comments || 'No comments'}
+          
+          <div className="metric-item">
+            <h2>Current Value</h2>
+            <div className="metric-value">
+              {userProfileService.formatCurrency(assetData.value)}
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="goal-allocations">
-        <h2>Goal Allocations</h2>
-        {assetData.goalMappings?.length > 0 ? (
-          <div className="allocations-list">
-            {assetData.goalMappings.map(mapping => (
-              <div key={mapping.goal_id} className="allocation-item">
-                <div className="allocation-header">
-                  <span className="goal-name">{mapping.goal_name}</span>
-                  <span className="allocation-percentage">
-                    {mapping.allocation_percentage}%
-                  </span>
-                </div>
-                <div className="allocation-bar">
-                  <div 
-                    className="allocation-progress"
-                    style={{ width: `${mapping.allocation_percentage}%` }}
-                  />
-                </div>
+          <div className="metric-item">
+            <h2>Projected ROI</h2>
+            <div className="metric-value">
+              {assetData.projectedRoi}%
+            </div>
+          </div>
+        </div>
+
+        {assetData.comments && (
+          <>
+            <hr className="section-divider" />
+            <div className="comments-section">
+              <h2 className="comments-title">Comments</h2>
+              <div className="comments-text">
+                {assetData.comments}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="no-allocations">
-            No assets are currently allocated to this goal
-          </div>
+            </div>
+          </>
         )}
-      </div>
 
-      <div className="last-updated">
-        Last updated: {formatDate(assetData.updatedAt)}
+        <div className="goal-allocations">
+          <h2>Goal Allocations</h2>
+          {assetData.goalMappings?.length > 0 ? (
+            <div className="allocations-list">
+              {assetData.goalMappings.map(mapping => (
+                <div key={mapping.goal_id} className="allocation-item">
+                  <div className="allocation-header">
+                    <span className="goal-name">{mapping.goal_name}</span>
+                    <span className="allocation-percentage">
+                      {mapping.allocation_percentage}%
+                    </span>
+                  </div>
+                  <div className="allocation-bar">
+                    <div 
+                      className="allocation-progress"
+                      style={{ width: `${mapping.allocation_percentage}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-allocations">
+              No goals are currently allocated to this asset
+            </div>
+          )}
+        </div>
+
+        <div className="last-updated">
+          Last updated: {formatDate(assetData.updatedAt)}
+        </div>
       </div>
     </div>
   );
