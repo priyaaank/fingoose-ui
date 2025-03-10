@@ -61,6 +61,7 @@ function AssetForm() {
           isEditMode ? assetService.fetchAssetById(parseInt(id)) : null
         ]);
         
+        console.log('Goals data:', goalsData);
         setGoals(goalsData);
         
         if (isEditMode && assetData) {
@@ -140,7 +141,7 @@ function AssetForm() {
 
     setGoalMappings(prev => [...prev, {
       goal_id: parseInt(selectedGoal),
-      goal_name: selectedGoalData.title,
+      goal_name: selectedGoalData.name,
       allocation_percentage: 0
     }]);
     setSelectedGoal('');
@@ -270,7 +271,7 @@ function AssetForm() {
           goals={goals}
           selectedGoal={selectedGoal}
           goalMappings={goalMappings}
-          onGoalSelect={setSelectedGoal}
+          onGoalSelect={(value) => setSelectedGoal(value)}
           onAddGoal={handleAddGoal}
           onAllocationChange={handleAllocationChange}
           onRemoveGoal={handleRemoveGoal}
