@@ -10,6 +10,7 @@ import EditLiability from './pages/EditLiability';
 import UserPreferences from './pages/UserPreferences';
 import Auth from './pages/Auth';
 import { AssetForm, AssetView } from './components/features/Assets';
+import { GoalView } from './components/features/Goals';
 import './App.css';
 import './styles/Dashboard.css';
 
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/preferences" element={<UserPreferences />} />
           <Route path="/liabilities/:id/edit" element={<EditLiability />} />
           <Route path="/view-asset/:id" element={<AssetView />} />
+          <Route path="/goals/:id" element={<GoalView />} />
         </Routes>
       </div>
     </div>

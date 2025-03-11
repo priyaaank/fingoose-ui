@@ -7,7 +7,7 @@ function GoalSummary({ goal }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/edit-goal/${goal.id}`);
+    navigate(`/goals/${goal.id}`);
   };
 
   // Calculate months remaining
