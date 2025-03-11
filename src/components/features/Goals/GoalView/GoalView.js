@@ -104,7 +104,6 @@ function GoalView() {
           </div>
         </div>
 
-        <hr className="section-divider" />
         <div className="asset-allocations">
           <h2>Asset Allocations</h2>
           <div className="allocations-list">
