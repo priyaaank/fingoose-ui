@@ -124,6 +124,46 @@
   margin: 0 0 1.5rem 0;
 }
 
+.allocations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.allocation-item {
+  display: grid;
+  grid-template-columns: 200px 1fr 60px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.allocation-name {
+  font-size: 1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.allocation-percentage {
+  font-size: 1rem;
+  color: #666;
+  text-align: right;
+}
+
+.last-updated {
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: #666;
+  text-align: right;
+}
+
+.no-allocations {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
 @media (max-width: 768px) {
   .goal-view-page {
     padding: 1rem;
@@ -144,5 +184,18 @@
 
   .detail-value {
     font-size: 1rem;
+  }
+
+  .allocation-item {
+    grid-template-columns: 140px 1fr 50px;
+    gap: 0.75rem;
+  }
+
+  .allocation-name {
+    font-size: 0.875rem;
+  }
+
+  .allocation-percentage {
+    font-size: 0.875rem;
   }
 } 

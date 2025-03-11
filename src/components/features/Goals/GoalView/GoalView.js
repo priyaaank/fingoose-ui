@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { goalService } from '../../../../services/goalService';
 import { userProfileService } from '../../../../services/userProfileService';
 import LoadingSpinner from '../../../common/LoadingSpinner';
+import ProgressBar from '../../../common/ProgressBar';
 import './GoalView.css';
 
 function GoalView() {
@@ -40,6 +41,18 @@ function GoalView() {
         setError(error.message);
       }
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not available';
+    
+    const date = new Date(dateString);
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   };
 
   if (loading) return <LoadingSpinner />;
@@ -94,7 +107,22 @@ function GoalView() {
         <hr className="section-divider" />
         <div className="asset-allocations">
           <h2>Asset Allocations</h2>
-          {/* Asset allocations content will go here */}
+          <div className="allocations-list">
+            {goal.assets?.length > 0 ? goal.assets.map((mapping) => (
+              <div key={mapping.id} className="allocation-item">
+                <div className="allocation-name">{mapping.name}</div>
+                <ProgressBar percentage={mapping.allocation_percentage} />
+                <div className="allocation-percentage">{mapping.allocation_percentage}%</div>
+              </div>
+            )) : (
+              <div className="no-allocations">
+                No asset allocations found for this goal
+              </div>
+            )}
+          </div>
+          <div className="last-updated">
+            Last updated: {formatDate(goal.last_updated)}
+          </div>
         </div>
       </div>
     </div>

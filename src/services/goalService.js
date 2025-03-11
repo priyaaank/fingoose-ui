@@ -117,11 +117,9 @@ export const goalService = {
       created_at: new Date(apiGoal.created_at),
       updated_at: new Date(apiGoal.updated_at),
       progress: apiGoal.progress || 35, // Temporary hardcoded value
-      assets: apiGoal.assets?.map(asset => ({
-        id: asset.id,
-        name: asset.name,
-        icon: asset.icon,
-        allocated_amount: asset.allocated_amount,
+      assets: apiGoal.asset_mappings?.map(asset => ({
+        id: asset.asset_id,
+        name: asset.asset_name,
         allocation_percentage: asset.allocation_percentage
       })) || []
     };
