@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AssetTable } from '../components/features/Assets';
-import GoalSummary from '../components/GoalForm/GoalSummary';
+import { GoalSummary } from '../components/features/Goals';
 import InvestmentTable from '../components/Investment/InvestmentTable';
 import LiabilitiesTable from '../components/Liabilities/LiabilitiesTable';
 import SummaryCard from '../components/Summary/SummaryCard';

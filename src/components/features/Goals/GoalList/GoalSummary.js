@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userProfileService } from '../../services/userProfileService';
+import { userProfileService } from '../../../../services/userProfileService';
 import './GoalSummary.css';
 
 function GoalSummary({ goal }) {
