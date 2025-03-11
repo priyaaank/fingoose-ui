@@ -5,6 +5,7 @@ import { goalService } from '../../../../services/goalService';
 import LoadingSpinner from '../../../common/LoadingSpinner';
 import GoalMappings from '../../Goals/GoalMappings/GoalMappings';
 import IconSelector from '../../../common/IconSelector/IconSelector';
+import PageHeader from '../../../common/PageHeader';
 import './AssetForm.css';
 
 function AssetForm() {
@@ -163,9 +164,7 @@ function AssetForm() {
 
   return (
     <div className="asset-form-page">
-      <div className="page-header">
-        <h1>{isEditMode ? 'Edit Asset' : 'Add New Asset'}</h1>
-      </div>
+      <PageHeader title={isEditMode ? 'Edit Asset' : 'Add New Asset'} />
 
       <form className="asset-form" onSubmit={handleSubmit}>
         {error && <div className="error-message">{error}</div>}

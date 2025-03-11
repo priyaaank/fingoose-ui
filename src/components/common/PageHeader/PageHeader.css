@@ -1,0 +1,43 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.back-button {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1;
+}
+
+.back-button:hover {
+  background: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+} 
